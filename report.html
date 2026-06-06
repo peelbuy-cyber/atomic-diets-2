@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Get Your Health Report — Atomic Diets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Analysing your data...</div>
+  <div class="loading-sub">Running 12 health calculations</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<nav class="report-nav">
+  <a href="index.html" class="logo">⚛ Atomic<span>Diets</span></a>
+  <div id="authNavBtn">
+    <a href="auth.html" style="color:var(--gray-500);text-decoration:none;font-size:14px;font-weight:500;">Sign In</a>
+  </div>
+</nav>
+
+<!-- FORM SECTION -->
+<div class="form-section" id="formSection">
+  <h1>Get Your Free Health Report Preview</h1>
+  <p class="subtitle">Fill in your details below. We'll run 12 calculations and generate your personalised health report instantly.</p>
+  <div class="form-card">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" id="fname" placeholder="John" required/>
+      </div>
+      <div class="form-group">
+        <label>Age</label>
+        <input type="number" id="age" placeholder="28" min="10" max="100" required/>
+      </div>
+      <div class="form-group">
+        <label>Gender</label>
+        <select id="gender">
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Height (cm)</label>
+        <input type="number" id="height" placeholder="175" min="100" max="250" required/>
+      </div>
+      <div class="form-group">
+        <label>Weight (kg)</label>
+        <input type="number" id="weight" placeholder="75" min="30" max="300" required/>
+      </div>
+      <div class="form-group">
+        <label>Activity Level</label>
+        <select id="activity">
+          <option value="1.2">Sedentary (little/no exercise)</option>
+          <option value="1.375">Lightly active (1–3 days/week)</option>
+          <option value="1.55" selected>Moderately active (3–5 days/week)</option>
+          <option value="1.725">Very active (6–7 days/week)</option>
+          <option value="1.9">Extra active (athlete/physical job)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Your Goal</label>
+        <select id="goal">
+          <option value="lose">Lose weight</option>
+          <option value="maintain">Maintain weight</option>
+          <option value="gain">Gain muscle</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Country</label>
+        <select id="country">
+          <option value="india">India</option>
+          <option value="usa">United States</option>
+          <option value="uk">United Kingdom</option>
+          <option value="nigeria">Nigeria</option>
+          <option value="philippines">Philippines</option>
+          <option value="brazil">Brazil</option>
+          <option value="indonesia">Indonesia</option>
+          <option value="mexico">Mexico</option>
+          <option value="pakistan">Pakistan</option>
+          <option value="bangladesh">Bangladesh</option>
+          <option value="egypt">Egypt</option>
+          <option value="ethiopia">Ethiopia</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <button class="form-submit" onclick="generateReport()">Generate My Health Report →</button>
+  </div>
+</div>
+
+<!-- REPORT OUTPUT -->
+<div class="report-output" id="reportOutput">
+
+  <!-- Report header -->
+  <div class="report-header-box">
+    <div class="rh-avatar" id="rhAvatar">JD</div>
+    <div class="rh-info">
+      <h2 id="rhName">Your Health Report</h2>
+      <p id="rhDate">Generated today</p>
+    </div>
+  </div>
+
+  <!-- Key metrics -->
+  <div class="report-metrics">
+    <div class="rm-card">
+      <div class="rm-val" id="bmiVal" style="color:var(--green)">—</div>
+      <div class="rm-label">BMI</div>
+      <div class="rm-status" id="bmiStatus">—</div>
+    </div>
+    <div class="rm-card">
+      <div class="rm-val" id="tdeeVal" style="color:var(--blue)">—</div>
+      <div class="rm-label">Daily Calories</div>
+      <div class="rm-status" style="background:var(--blue-light);color:var(--blue)">TDEE</div>
+    </div>
+    <div class="rm-card">
+      <div class="rm-val" id="bfVal" style="color:var(--purple)">—</div>
+      <div class="rm-label">Body Fat %</div>
+      <div class="rm-status" id="bfStatus">—</div>
+    </div>
+  </div>
+
+  <!-- Body Analysis -->
+  <div class="report-section">
+    <div class="rs-title">📊 Body Analysis</div>
+    <div class="rs-rows">
+      <div class="rs-row"><span>Ideal Weight Range</span><strong id="idealWeight">—</strong></div>
+      <div class="rs-row"><span>Weight to Reach Goal</span><strong id="weightToGoal">—</strong></div>
+      <div class="rs-row"><span>Lean Body Mass</span><strong id="lbm">—</strong></div>
+      <div class="rs-row"><span>BMI Category</span><strong id="bmiCat">—</strong></div>
+    </div>
+  </div>
+
+  <!-- Calorie Targets -->
+  <div class="report-section">
+    <div class="rs-title">🔥 Calorie Targets</div>
+    <div class="rs-rows">
+      <div class="rs-row"><span>Maintenance (TDEE)</span><strong id="maintenance">—</strong></div>
+      <div class="rs-row"><span>Your Goal Target</span><strong id="goalCalories">—</strong></div>
+      <div class="rs-row"><span>Aggressive Target</span><strong id="aggressiveCalories">—</strong></div>
+    </div>
+  </div>
+
+  <!-- Macros -->
+  <div class="report-section">
+    <div class="rs-title">🥗 Macro Breakdown</div>
+    <div class="rs-rows">
+      <div class="rs-row"><span>Protein</span><strong id="protein">—</strong></div>
+      <div class="rs-row"><span>Carbohydrates</span><strong id="carbs">—</strong></div>
+      <div class="rs-row"><span>Fats</span><strong id="fats">—</strong></div>
+    </div>
+  </div>
+
+  <!-- PAYWALL -->
+  <div class="paywall-section" id="paywallSection">
+    <div class="pw-blurred">
+      <div class="rs-title">💧 Water & Sleep</div>
+      <div class="rs-rows">
+        <div class="rs-row"><span>Daily Water</span><strong>████████</strong></div>
+        <div class="rs-row"><span>Sleep Target</span><strong>████████</strong></div>
+        <div class="rs-row"><span>Best Bedtime</span><strong>████████</strong></div>
+      </div>
+      <div class="rs-title" style="margin-top:16px">❤️ Heart Rate Zones</div>
+      <div class="rs-rows">
+        <div class="rs-row"><span>Fat Burn Zone</span><strong>████████</strong></div>
+        <div class="rs-row"><span>Cardio Zone</span><strong>████████</strong></div>
+      </div>
+      <div class="rs-title" style="margin-top:16px">💪 Your Workout Plan</div>
+      <div class="rs-rows">
+        <div class="rs-row"><span>Week 1–4</span><strong>████████</strong></div>
+        <div class="rs-row"><span>Week 5–8</span><strong>████████</strong></div>
+      </div>
+      <div class="rs-title" style="margin-top:16px">🍽️ Your Meal Plan</div>
+      <div class="rs-rows">
+        <div class="rs-row"><span>Breakfast</span><strong>████████</strong></div>
+        <div class="rs-row"><span>Lunch</span><strong>████████</strong></div>
+        <div class="rs-row"><span>Dinner</span><strong>████████</strong></div>
+      </div>
+    </div>
+    <div class="pw-overlay">
+      <div class="pw-lock">🔒</div>
+      <div class="pw-title">Your Full Report is Ready</div>
+      <div class="pw-sub">Unlock water intake, sleep cycles, heart rate zones, custom workout plan, country-specific meal plan, progress tracker, and PDF downloads.</div>
+      <div class="pw-features">
+        <div class="pw-feature">✅ Water & sleep targets</div>
+        <div class="pw-feature">✅ Heart rate zones</div>
+        <div class="pw-feature">✅ Custom workout plan</div>
+        <div class="pw-feature">✅ Country meal plan</div>
+        <div class="pw-feature">✅ Progress tracker</div>
+        <div class="pw-feature">✅ PDF downloads</div>
+      </div>
+      <div class="pw-plans">
+        <div class="pw-plan popular selected" onclick="selectPlan('yearly')" id="planYearly">
+          <div class="pw-plan-badge">⭐ Best Value</div>
+          <div class="pw-plan-price">$249</div>
+          <div class="pw-plan-period">per year</div>
+          <div class="pw-plan-save">Save 23% vs monthly</div>
+        </div>
+        <div class="pw-plan" onclick="selectPlan('monthly')" id="planMonthly">
+          <div class="pw-plan-badge">Flexible</div>
+          <div class="pw-plan-price">$27</div>
+          <div class="pw-plan-period">per month</div>
+          <div class="pw-plan-save">Cancel anytime</div>
+        </div>
+      </div>
+      <button class="pw-btn" onclick="handleCheckout()">Unlock Full Report →</button>
+      <div class="pw-guarantee">🔒 Secure payment via Stripe · Cancel anytime · Instant access</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:20px 0">
+    <button onclick="resetForm()" style="background:none;border:none;color:var(--gray-400);cursor:pointer;font-size:13px;text-decoration:underline">← Generate a new report</button>
+  </div>
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBK95ICYTN4wmd6u_mpmA5oSUu8wL-y74E",
+    authDomain: "atomic-diets.firebaseapp.com",
+    projectId: "atomic-diets",
+    storageBucket: "atomic-diets.firebasestorage.app",
+    messagingSenderId: "580888855219",
+    appId: "1:580888855219:web:82c3d6e914ad9ecaebe6c6",
+    measurementId: "G-GJCSQF7GPC"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  window._auth = auth;
+  window._db = db;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      document.getElementById('authNavBtn').innerHTML = `
+        <a href="dashboard.html" style="color:var(--brand-accent);font-weight:600;text-decoration:none;font-size:14px">Dashboard →</a>
+      `;
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (snap.exists() && snap.data().isPro) {
+        window._isPro = true;
+        document.getElementById('paywallSection').style.display = 'none';
+      }
+    }
+  });
+</script>
+
+<script>
+const STRIPE_KEY = 'STRIPE_PUBLISHABLE_KEY';
+const PRICE_MONTHLY = 'price_1Tf8CCFiax9ZHkWkewXf7iCk';
+const PRICE_YEARLY = 'price_1Tf8CCFiax9ZHkWkFc4hQd7C';
+
+let selectedPlan = 'yearly';
+let reportData = {};
+
+function selectPlan(plan) {
+  selectedPlan = plan;
+  document.getElementById('planYearly').classList.toggle('selected', plan === 'yearly');
+  document.getElementById('planMonthly').classList.toggle('selected', plan === 'monthly');
+}
+
+function showToast(msg, duration = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+function fmt(n) {
+  return Math.round(n).toLocaleString();
+}
+
+function generateReport() {
+  const fname = document.getElementById('fname').value.trim();
+  const age = parseFloat(document.getElementById('age').value);
+  const gender = document.getElementById('gender').value;
+  const height = parseFloat(document.getElementById('height').value);
+  const weight = parseFloat(document.getElementById('weight').value);
+  const activity = parseFloat(document.getElementById('activity').value);
+  const goal = document.getElementById('goal').value;
+  const country = document.getElementById('country').value;
+
+  if (!fname || !age || !height || !weight) {
+    showToast('Please fill in all fields');
+    return;
+  }
+
+  // Show loading
+  document.getElementById('loadingOverlay').classList.add('active');
+
+  setTimeout(() => {
+    // BMI
+    const bmi = weight / ((height/100) ** 2);
+    let bmiCat, bmiColor;
+    if (bmi < 18.5) { bmiCat = 'Underweight'; bmiColor = '#0891b2'; }
+    else if (bmi < 25) { bmiCat = 'Healthy Weight'; bmiColor = '#16a34a'; }
+    else if (bmi < 30) { bmiCat = 'Overweight'; bmiColor = '#ea580c'; }
+    else { bmiCat = 'Obese'; bmiColor = '#dc2626'; }
+
+    // BMR (Mifflin-St Jeor)
+    let bmr;
+    if (gender === 'male') bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+    else bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+
+    // TDEE
+    const tdee = bmr * activity;
+
+    // Goal calories
+    let goalCal;
+    if (goal === 'lose') goalCal = tdee - 500;
+    else if (goal === 'gain') goalCal = tdee + 400;
+    else goalCal = tdee;
+
+    // Body fat (US Navy formula estimate)
+    const bf = gender === 'male'
+      ? (1.2 * bmi) + (0.23 * age) - 16.2
+      : (1.2 * bmi) + (0.23 * age) - 5.4;
+
+    // Lean body mass
+    const lbm = weight * (1 - bf/100);
+
+    // Ideal weight (Miller formula)
+    const idealLow = gender === 'male'
+      ? 56.2 + 1.41 * ((height - 152.4) / 2.54)
+      : 53.1 + 1.36 * ((height - 152.4) / 2.54);
+    const idealHigh = idealLow * 1.08;
+
+    // Macros
+    const protein = weight * 2.2; // 1g per lb
+    const fats = goalCal * 0.25 / 9;
+    const carbs = (goalCal - protein * 4 - fats * 9) / 4;
+
+    // Weight to goal
+    const midIdeal = (idealLow + idealHigh) / 2;
+    const diff = weight - midIdeal;
+
+    // Store for dashboard
+    reportData = { fname, age, gender, height, weight, bmi, tdee, bf, goal, country, goalCal, lbm, protein, carbs, fats };
+    localStorage.setItem('atomicReport', JSON.stringify(reportData));
+
+    // Update UI
+    document.getElementById('rhAvatar').textContent = fname.charAt(0).toUpperCase() + (fname.length > 1 ? fname.charAt(1).toUpperCase() : '');
+    document.getElementById('rhName').textContent = fname + "'s Health Report";
+    document.getElementById('rhDate').textContent = 'Generated ' + new Date().toLocaleDateString('en-US', {day:'numeric',month:'long',year:'numeric'});
+
+    document.getElementById('bmiVal').textContent = bmi.toFixed(1);
+    document.getElementById('bmiVal').style.color = bmiColor;
+    document.getElementById('bmiStatus').textContent = bmiCat;
+    document.getElementById('bmiStatus').style.cssText = `background:${bmiColor}20;color:${bmiColor};`;
+
+    document.getElementById('tdeeVal').textContent = fmt(tdee);
+    document.getElementById('bfVal').textContent = bf.toFixed(1) + '%';
+
+    document.getElementById('idealWeight').textContent = idealLow.toFixed(1) + ' – ' + idealHigh.toFixed(1) + ' kg';
+    document.getElementById('weightToGoal').textContent = diff > 0 ? 'Lose ' + diff.toFixed(1) + ' kg' : diff < 0 ? 'Gain ' + Math.abs(diff).toFixed(1) + ' kg' : 'At ideal weight ✅';
+    document.getElementById('lbm').textContent = lbm.toFixed(1) + ' kg';
+    document.getElementById('bmiCat').textContent = bmiCat;
+
+    document.getElementById('maintenance').textContent = fmt(tdee) + ' cal/day';
+    document.getElementById('goalCalories').textContent = fmt(goalCal) + ' cal/day';
+    document.getElementById('aggressiveCalories').textContent = fmt(goal === 'gain' ? tdee + 700 : tdee - 750) + ' cal/day';
+
+    document.getElementById('protein').textContent = fmt(protein) + 'g (' + fmt(protein * 4) + ' cal)';
+    document.getElementById('carbs').textContent = fmt(carbs) + 'g (' + fmt(carbs * 4) + ' cal)';
+    document.getElementById('fats').textContent = fmt(fats) + 'g (' + fmt(fats * 9) + ' cal)';
+
+    // Hide form, show report
+    document.getElementById('loadingOverlay').classList.remove('active');
+    document.getElementById('formSection').style.display = 'none';
+    document.getElementById('reportOutput').classList.add('visible');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (window._isPro) {
+      document.getElementById('paywallSection').style.display = 'none';
+    }
+  }, 2000);
+}
+
+async function handleCheckout() {
+  const user = window._auth ? window._auth.currentUser : null;
+  if (!user) {
+    localStorage.setItem('pendingPlan', selectedPlan);
+    localStorage.setItem('atomicReport', JSON.stringify(reportData));
+    window.location.href = 'auth.html?next=checkout';
+    return;
+  }
+  await startCheckout(user.email);
+}
+
+async function startCheckout(email) {
+  const btn = document.querySelector('.pw-btn');
+  btn.textContent = 'Redirecting to payment...';
+  btn.disabled = true;
+  try {
+    const priceId = selectedPlan === 'yearly' ? PRICE_YEARLY : PRICE_MONTHLY;
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priceId, email, userId: window._auth.currentUser.uid })
+    });
+    const { url } = await res.json();
+    window.location.href = url;
+  } catch (e) {
+    showToast('Payment error. Please try again.');
+    btn.textContent = 'Unlock Full Report →';
+    btn.disabled = false;
+  }
+}
+
+function resetForm() {
+  document.getElementById('formSection').style.display = 'block';
+  document.getElementById('reportOutput').classList.remove('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Enter key support
+document.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter' && document.getElementById('formSection').style.display !== 'none') {
+    generateReport();
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — Atomic Diets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="dashboard-page">
+  <nav class="dash-nav">
+    <div class="logo">⚛ Atomic<span>Diets</span></div>
+    <div style="display:flex;gap:16px;align-items:center">
+      <a href="report.html" style="color:var(--gray-500);text-decoration:none;font-size:13px;">New Report</a>
+      <button onclick="handleSignOut()" style="background:none;border:1px solid var(--gray-200);padding:8px 16px;border-radius:100px;cursor:pointer;font-size:13px;color:var(--gray-600);">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="dash-inner" id="dashContent" style="display:none">
+
+    <!-- Welcome -->
+    <div class="dash-welcome">
+      <div class="dw-left">
+        <h2 id="welcomeName">Welcome back!</h2>
+        <p id="welcomeSub">Your health journey continues</p>
+      </div>
+      <div class="dw-badge">PRO Member</div>
+    </div>
+
+    <!-- Key metrics -->
+    <div class="dash-grid" id="metricsGrid">
+      <div class="dash-card">
+        <div class="dc-label">Current BMI</div>
+        <div class="dc-val" id="dashBMI">—</div>
+        <div class="dc-sub" id="dashBMIcat">—</div>
+      </div>
+      <div class="dash-card">
+        <div class="dc-label">Daily Calories</div>
+        <div class="dc-val" id="dashCal">—</div>
+        <div class="dc-sub">Goal target</div>
+      </div>
+      <div class="dash-card">
+        <div class="dc-label">Goal</div>
+        <div class="dc-val" id="dashGoal">—</div>
+        <div class="dc-sub" id="dashProgress">—</div>
+      </div>
+    </div>
+
+    <!-- Progress Tracker -->
+    <div class="dash-section">
+      <div class="ds-header">
+        <div class="ds-title">📈 Progress Tracker</div>
+      </div>
+      <div class="tracker-form">
+        <div class="tf-group">
+          <label>Weight (kg)</label>
+          <input type="number" id="trackWeight" placeholder="75.0" step="0.1"/>
+        </div>
+        <div class="tf-group">
+          <label>Body Fat % (optional)</label>
+          <input type="number" id="trackBF" placeholder="22.0" step="0.1"/>
+        </div>
+        <div class="tf-group">
+          <label>Notes (optional)</label>
+          <input type="text" id="trackNotes" placeholder="Feeling good..."/>
+        </div>
+        <button class="tf-submit" onclick="saveTrackerEntry()">Log Today →</button>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="progressChart"></canvas>
+      </div>
+    </div>
+
+    <!-- History table -->
+    <div class="dash-section">
+      <div class="ds-header">
+        <div class="ds-title">📋 Progress History</div>
+      </div>
+      <div id="historyTableWrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Weight</th>
+              <th>Body Fat</th>
+              <th>Change</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:24px">No entries yet. Log your first measurement above.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Full Report -->
+    <div class="dash-section">
+      <div class="ds-header">
+        <div class="ds-title">📊 Your Full Health Report</div>
+        <button class="ds-btn" onclick="window.location.href='report.html'">Regenerate →</button>
+      </div>
+      <div id="fullReportContent">
+        <div style="color:var(--gray-400);text-align:center;padding:24px">Generate a report first to see full details here.</div>
+      </div>
+    </div>
+
+    <!-- Workout Plan -->
+    <div class="dash-section">
+      <div class="ds-header">
+        <div class="ds-title">💪 Your Workout Plan</div>
+      </div>
+      <div id="workoutPlan"></div>
+    </div>
+
+    <!-- Meal Plan -->
+    <div class="dash-section">
+      <div class="ds-header">
+        <div class="ds-title">🍽️ Your Country Meal Plan</div>
+      </div>
+      <div id="mealPlan"></div>
+    </div>
+
+    <!-- Downloads -->
+    <div class="dash-section">
+      <div class="ds-header">
+        <div class="ds-title">📥 Downloads</div>
+      </div>
+      <div class="download-grid">
+        <button class="dl-btn" onclick="downloadReport()">
+          <div class="dl-icon">📄</div>
+          <div class="dl-text">Full Health Report</div>
+        </button>
+        <button class="dl-btn" onclick="downloadWorkout()">
+          <div class="dl-icon">💪</div>
+          <div class="dl-text">Workout Plan</div>
+        </button>
+        <button class="dl-btn" onclick="downloadMeal()">
+          <div class="dl-icon">🍽️</div>
+          <div class="dl-text">Meal Plan</div>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Not Pro -->
+  <div id="notProMsg" style="display:none;max-width:480px;margin:80px auto;text-align:center;padding:24px">
+    <div style="font-size:48px;margin-bottom:16px">🔒</div>
+    <h2 style="font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--brand);margin-bottom:8px">Dashboard is for Pro Members</h2>
+    <p style="color:var(--gray-500);margin-bottom:24px">Generate your report and unlock full access.</p>
+    <a href="report.html" class="btn-primary">Get Your Report →</a>
+  </div>
+
+  <!-- Loading -->
+  <div id="dashLoading" style="text-align:center;padding:80px 24px">
+    <div class="loading-spinner" style="margin:0 auto 16px"></div>
+    <div style="color:var(--gray-400)">Loading your dashboard...</div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, collection, addDoc, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBK95ICYTN4wmd6u_mpmA5oSUu8wL-y74E",
+    authDomain: "atomic-diets.firebaseapp.com",
+    projectId: "atomic-diets",
+    storageBucket: "atomic-diets.firebasestorage.app",
+    messagingSenderId: "580888855219",
+    appId: "1:580888855219:web:82c3d6e914ad9ecaebe6c6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  window._auth = auth;
+  window._db = db;
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+  window.showToast = showToast;
+
+  window.handleSignOut = async () => {
+    await signOut(auth);
+    window.location.href = 'index.html';
+  };
+
+  onAuthStateChanged(auth, async (user) => {
+    document.getElementById('dashLoading').style.display = 'none';
+    if (!user) { window.location.href = 'auth.html'; return; }
+
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    const userData = snap.exists() ? snap.data() : {};
+
+    if (!userData.isPro) {
+      document.getElementById('notProMsg').style.display = 'block';
+      return;
+    }
+
+    window._userId = user.uid;
+    document.getElementById('dashContent').style.display = 'block';
+    document.getElementById('welcomeName').textContent = 'Welcome back, ' + (userData.name || user.displayName || 'there') + '!';
+
+    // Load report from localStorage
+    const report = JSON.parse(localStorage.getItem('atomicReport') || '{}');
+    if (report.weight) {
+      populateDashboard(report);
+    }
+
+    // Load tracker history
+    await loadHistory(user.uid);
+  });
+
+  function populateDashboard(r) {
+    const bmi = r.weight / ((r.height/100) ** 2);
+    let bmiCat = bmi < 18.5 ? 'Underweight' : bmi < 25 ? 'Healthy Weight' : bmi < 30 ? 'Overweight' : 'Obese';
+    document.getElementById('dashBMI').textContent = bmi.toFixed(1);
+    document.getElementById('dashBMIcat').textContent = bmiCat;
+    document.getElementById('dashCal').textContent = Math.round(r.goalCal).toLocaleString();
+    document.getElementById('dashGoal').textContent = r.goal === 'lose' ? 'Lose Weight' : r.goal === 'gain' ? 'Gain Muscle' : 'Maintain';
+    document.getElementById('dashProgress').textContent = 'Country: ' + r.country.charAt(0).toUpperCase() + r.country.slice(1);
+
+    // Full report
+    document.getElementById('fullReportContent').innerHTML = `
+      <div class="rs-rows">
+        <div class="rs-row"><span>BMI</span><strong>${bmi.toFixed(1)} — ${bmiCat}</strong></div>
+        <div class="rs-row"><span>Maintenance Calories</span><strong>${Math.round(r.tdee).toLocaleString()} cal/day</strong></div>
+        <div class="rs-row"><span>Goal Calories</span><strong>${Math.round(r.goalCal).toLocaleString()} cal/day</strong></div>
+        <div class="rs-row"><span>Protein</span><strong>${Math.round(r.protein)}g/day</strong></div>
+        <div class="rs-row"><span>Carbs</span><strong>${Math.round(r.carbs)}g/day</strong></div>
+        <div class="rs-row"><span>Fats</span><strong>${Math.round(r.fats)}g/day</strong></div>
+        <div class="rs-row"><span>Daily Water</span><strong>${(r.weight * 0.035).toFixed(1)}L/day</strong></div>
+        <div class="rs-row"><span>Sleep Target</span><strong>7–9 hours/night</strong></div>
+        <div class="rs-row"><span>Fat Burn Heart Rate</span><strong>${Math.round(0.6 * (220 - r.age))}–${Math.round(0.7 * (220 - r.age))} bpm</strong></div>
+        <div class="rs-row"><span>Cardio Heart Rate</span><strong>${Math.round(0.7 * (220 - r.age))}–${Math.round(0.85 * (220 - r.age))} bpm</strong></div>
+      </div>
+    `;
+
+    // Workout plan
+    const workouts = getWorkoutPlan(r.goal);
+    document.getElementById('workoutPlan').innerHTML = workouts;
+
+    // Meal plan
+    const meals = getMealPlan(r.country, r.goalCal);
+    document.getElementById('mealPlan').innerHTML = meals;
+  }
+
+  async function loadHistory(uid) {
+    try {
+      const q = query(collection(db, 'users', uid, 'tracker'), orderBy('date', 'desc'));
+      const snap = await getDocs(q);
+      const entries = [];
+      snap.forEach(d => entries.push({ id: d.id, ...d.data() }));
+      window._trackerEntries = entries;
+      renderHistory(entries);
+      renderChart(entries);
+    } catch(e) {
+      console.log('History load error', e);
+    }
+  }
+
+  window.saveTrackerEntry = async () => {
+    const weight = parseFloat(document.getElementById('trackWeight').value);
+    const bf = parseFloat(document.getElementById('trackBF').value) || null;
+    const notes = document.getElementById('trackNotes').value.trim();
+    if (!weight) { showToast('Please enter your weight'); return; }
+    const entry = { weight, bf, notes, date: new Date().toISOString() };
+    try {
+      await addDoc(collection(db, 'users', window._userId, 'tracker'), entry);
+      showToast('Progress logged! ✅');
+      document.getElementById('trackWeight').value = '';
+      document.getElementById('trackBF').value = '';
+      document.getElementById('trackNotes').value = '';
+      await loadHistory(window._userId);
+    } catch(e) { showToast('Error saving. Try again.'); }
+  };
+
+  function renderHistory(entries) {
+    const body = document.getElementById('historyBody');
+    if (!entries.length) {
+      body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:24px">No entries yet.</td></tr>';
+      return;
+    }
+    body.innerHTML = entries.map((e, i) => {
+      const prev = entries[i + 1];
+      const change = prev ? (e.weight - prev.weight).toFixed(1) : null;
+      const changeBadge = change !== null
+        ? `<span class="change-badge ${parseFloat(change) < 0 ? 'good' : 'bad'}">${parseFloat(change) > 0 ? '+' : ''}${change} kg</span>`
+        : '—';
+      return `<tr>
+        <td>${new Date(e.date).toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'})}</td>
+        <td><strong>${e.weight} kg</strong></td>
+        <td>${e.bf ? e.bf + '%' : '—'}</td>
+        <td>${changeBadge}</td>
+        <td style="color:var(--gray-400)">${e.notes || '—'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  let progressChart = null;
+  function renderChart(entries) {
+    if (!entries.length) return;
+    const reversed = [...entries].reverse();
+    const labels = reversed.map(e => new Date(e.date).toLocaleDateString('en-US',{day:'numeric',month:'short'}));
+    const weights = reversed.map(e => e.weight);
+    if (progressChart) progressChart.destroy();
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    progressChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Weight (kg)',
+          data: weights,
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16,185,129,0.08)',
+          borderWidth: 2,
+          pointBackgroundColor: '#10b981',
+          pointRadius: 4,
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+          y: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  // PDF downloads using print
+  window.downloadReport = () => {
+    window.print();
+  };
+  window.downloadWorkout = () => {
+    const w = window.open('', '_blank');
+    w.document.write('<html><body>' + document.getElementById('workoutPlan').innerHTML + '</body></html>');
+    w.print(); w.close();
+  };
+  window.downloadMeal = () => {
+    const w = window.open('', '_blank');
+    w.document.write('<html><body>' + document.getElementById('mealPlan').innerHTML + '</body></html>');
+    w.print(); w.close();
+  };
+</script>
+
+<script>
+const COUNTRY_MEALS = {
+  india: {
+    breakfast: ['Oats with banana and almonds', 'Poha with vegetables', 'Idli with sambar', 'Whole wheat paratha with curd'],
+    lunch: ['Dal chawal with sabzi', 'Rajma rice with salad', 'Roti with paneer curry', 'Brown rice with dal and vegetables'],
+    dinner: ['Roti with chicken curry', 'Khichdi with pickle', 'Moong dal with roti', 'Grilled fish with salad and rice'],
+    snacks: ['Roasted chana', 'Sprouts chaat', 'Banana with peanut butter', 'Buttermilk']
+  },
+  usa: {
+    breakfast: ['Oatmeal with berries and honey', 'Eggs and whole wheat toast', 'Greek yogurt with granola', 'Smoothie with protein powder'],
+    lunch: ['Grilled chicken salad', 'Turkey sandwich on whole wheat', 'Tuna wrap with vegetables', 'Quinoa bowl with roasted veggies'],
+    dinner: ['Grilled salmon with sweet potato', 'Chicken stir fry with brown rice', 'Lean beef tacos with salsa', 'Turkey meatballs with pasta'],
+    snacks: ['Apple with almond butter', 'String cheese', 'Trail mix', 'Cottage cheese']
+  },
+  uk: {
+    breakfast: ['Porridge with banana', 'Scrambled eggs on wholemeal toast', 'Greek yogurt with berries', 'Overnight oats'],
+    lunch: ['Chicken and salad sandwich', 'Lentil soup with bread', 'Jacket potato with tuna', 'Prawn salad'],
+    dinner: ['Baked salmon with vegetables', 'Chicken casserole with rice', 'Lamb chops with sweet potato', 'Vegetable curry with rice'],
+    snacks: ['Apple', 'Oat cakes with hummus', 'Walnuts', 'Fruit salad']
+  },
+  nigeria: {
+    breakfast: ['Oatmeal with milk and banana', 'Akara with pap', 'Boiled eggs with bread', 'Moi Moi with oats'],
+    lunch: ['Jollof rice with chicken', 'Egusi soup with fufu', 'Rice and beans with plantain', 'Yam porridge with fish'],
+    dinner: ['Grilled fish with vegetable soup', 'Ofada rice with stew', 'Ofe onugbu with fufu', 'Chicken pepper soup'],
+    snacks: ['Garden egg', 'Groundnuts', 'Fruit salad', 'Coconut']
+  },
+  philippines: {
+    breakfast: ['Lugaw with egg', 'Sinangag with egg', 'Pandesal with cheese', 'Champorado'],
+    lunch: ['Sinigang with rice', 'Adobo with rice', 'Pinakbet with rice', 'Tinola with rice'],
+    dinner: ['Grilled bangus with salad', 'Chicken afritada', 'Monggo with fish', 'Kare-kare with bagoong'],
+    snacks: ['Banana', 'Kamote', 'Fresh buko', 'Chicharon bulaklak']
+  }
+};
+
+const DEFAULT_MEALS = {
+  breakfast: ['Oatmeal with fruit', 'Eggs and whole grain toast', 'Yogurt with granola', 'Smoothie with protein'],
+  lunch: ['Grilled protein with salad', 'Soup with bread', 'Rice bowl with vegetables', 'Wrap with lean protein'],
+  dinner: ['Grilled fish with vegetables', 'Lean meat with whole grains', 'Legume stew with rice', 'Stir fry with rice'],
+  snacks: ['Fresh fruit', 'Nuts and seeds', 'Yogurt', 'Vegetable sticks']
+};
+
+function getMealPlan(country, calories) {
+  const meals = COUNTRY_MEALS[country] || DEFAULT_MEALS;
+  return `
+    <div style="background:var(--green-light);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--green)">
+      🌍 Meal plan customised for <strong>${country.charAt(0).toUpperCase() + country.slice(1)}</strong> · Target: <strong>${Math.round(calories).toLocaleString()} cal/day</strong>
+    </div>
+    <div class="rs-rows">
+      <div class="rs-row"><span>☀️ Breakfast options</span></div>
+      ${meals.breakfast.map(m => `<div style="padding:6px 0 6px 16px;font-size:14px;color:var(--gray-600)">• ${m}</div>`).join('')}
+      <div class="rs-row" style="margin-top:8px"><span>🌞 Lunch options</span></div>
+      ${meals.lunch.map(m => `<div style="padding:6px 0 6px 16px;font-size:14px;color:var(--gray-600)">• ${m}</div>`).join('')}
+      <div class="rs-row" style="margin-top:8px"><span>🌙 Dinner options</span></div>
+      ${meals.dinner.map(m => `<div style="padding:6px 0 6px 16px;font-size:14px;color:var(--gray-600)">• ${m}</div>`).join('')}
+      <div class="rs-row" style="margin-top:8px"><span>🍎 Snack options</span></div>
+      ${meals.snacks.map(m => `<div style="padding:6px 0 6px 16px;font-size:14px;color:var(--gray-600)">• ${m}</div>`).join('')}
+    </div>
+    <div style="background:var(--gray-50);border-radius:var(--radius-sm);padding:12px 16px;margin-top:16px;font-size:12px;color:var(--gray-400)">
+      💡 Rotate options daily for variety. Portion sizes based on your calorie target. Drink water with every meal.
+    </div>
+  `;
+}
+
+function getWorkoutPlan(goal) {
+  const plans = {
+    lose: [
+      { week: 'Week 1–4', title: 'Foundation', desc: '30-min walks 5x/week + bodyweight exercises (push-ups, squats, lunges). Focus on building habit.' },
+      { week: 'Week 5–8', title: 'Intensity Up', desc: 'Add HIIT 3x/week (20 min). Continue walks. Introduce resistance bands.' },
+      { week: 'Week 9–12', title: 'Strength Cardio', desc: 'Gym or home weights 3x/week. HIIT 2x/week. Active rest 2 days.' },
+    ],
+    gain: [
+      { week: 'Week 1–4', title: 'Foundation', desc: 'Full body strength training 3x/week. Focus on form. Compound movements: squat, deadlift, press.' },
+      { week: 'Week 5–8', title: 'Progressive Overload', desc: 'Increase weight every week. Add 4th training day. Track all lifts.' },
+      { week: 'Week 9–12', title: 'Hypertrophy Focus', desc: '4 days split training. Higher volume. Prioritise sleep and protein intake.' },
+    ],
+    maintain: [
+      { week: 'Week 1–4', title: 'Active Lifestyle', desc: '10,000 steps/day. 2–3 strength sessions/week. 1–2 cardio sessions.' },
+      { week: 'Week 5–8', title: 'Variety', desc: 'Try a new activity (cycling, swimming, yoga). Keep 3 strength sessions.' },
+      { week: 'Week 9–12', title: 'Consistency', desc: 'Find your sustainable routine. Mix strength and cardio. Enjoy movement.' },
+    ]
+  };
+  const plan = plans[goal] || plans.maintain;
+  return plan.map(p => `
+    <div style="border:1px solid var(--gray-100);border-radius:var(--radius-sm);padding:16px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="background:var(--brand);color:white;font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px">${p.week}</div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--brand)">${p.title}</div>
+      </div>
+      <div style="font-size:14px;color:var(--gray-500)">${p.desc}</div>
+    </div>
+  `).join('');
+}
+</script>
+
+</body>
+</html>

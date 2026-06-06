@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment Successful — Atomic Diets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .success-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--gray-50);
+      padding: 24px;
+    }
+    .success-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 24px;
+      padding: 48px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    }
+    .success-icon {
+      width: 80px; height: 80px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      margin: 0 auto 24px;
+      animation: popIn 0.5s ease;
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .success-card h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px; font-weight: 800;
+      color: #0f172a; margin-bottom: 12px;
+    }
+    .success-card p {
+      color: #6b7280; font-size: 15px;
+      line-height: 1.6; margin-bottom: 32px;
+    }
+    .success-features {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 32px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .sf-item {
+      display: flex; align-items: center;
+      gap: 10px; font-size: 14px; color: #374151;
+    }
+    .go-btn {
+      display: block; width: 100%;
+      padding: 16px;
+      background: #0f172a; color: white;
+      border: none; border-radius: 100px;
+      font-family: 'Syne', sans-serif;
+      font-size: 16px; font-weight: 700;
+      cursor: pointer; text-decoration: none;
+      transition: background 0.2s;
+    }
+    .go-btn:hover { background: #1e293b; }
+    .countdown {
+      color: #9ca3af; font-size: 13px; margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+<div class="success-page">
+  <div class="success-card">
+    <div class="success-icon">✅</div>
+    <h1>You're now Pro!</h1>
+    <p>Your payment was successful. Your complete health report, workout plan, country meal plan, and progress tracker are ready.</p>
+    <div class="success-features">
+      <div class="sf-item">📊 Full personalised health report</div>
+      <div class="sf-item">💪 Custom workout plan</div>
+      <div class="sf-item">🍽️ Country-specific meal plan</div>
+      <div class="sf-item">📈 Progress tracker with history</div>
+      <div class="sf-item">📥 PDF downloads</div>
+    </div>
+    <a href="dashboard.html" class="go-btn">Go to My Dashboard →</a>
+    <div class="countdown" id="countdown">Redirecting in 5 seconds...</div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBK95ICYTN4wmd6u_mpmA5oSUu8wL-y74E",
+    authDomain: "atomic-diets.firebaseapp.com",
+    projectId: "atomic-diets",
+    storageBucket: "atomic-diets.firebasestorage.app",
+    messagingSenderId: "580888855219",
+    appId: "1:580888855219:web:82c3d6e914ad9ecaebe6c6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) window.location.href = 'auth.html';
+  });
+
+  // Countdown redirect
+  let count = 5;
+  const el = document.getElementById('countdown');
+  const timer = setInterval(() => {
+    count--;
+    el.textContent = `Redirecting in ${count} seconds...`;
+    if (count <= 0) {
+      clearInterval(timer);
+      window.location.href = 'dashboard.html';
+    }
+  }, 1000);
+</script>
+</body>
+</html>
