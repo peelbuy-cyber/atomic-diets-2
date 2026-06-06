@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     }
 
     const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-    const BASE_URL = process.env.BASE_URL || 'https://atomic-diets.vercel.app';
+    const BASE_URL = process.env.BASE_URL || 'https://atomic-diets-2-git-main-peel3.vercel.app';
 
     // Create Stripe checkout session via REST API
     const params = new URLSearchParams();
