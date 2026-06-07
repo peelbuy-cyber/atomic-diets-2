@@ -389,14 +389,31 @@ function generateReport() {
 }
 
 async function handleCheckout() {
-  const user = window._auth ? window._auth.currentUser : null;
-  if (!user) {
-    localStorage.setItem('pendingPlan', selectedPlan);
-    localStorage.setItem('atomicReport', JSON.stringify(reportData));
-    window.location.href = 'auth.html?next=checkout';
-    return;
+  const btn = document.querySelector('.pw-btn');
+  btn.textContent = 'Please wait...';
+  btn.disabled = true;
+
+  try {
+    const user = await new Promise((resolve) => {
+      if (!window._auth) { resolve(null); return; }
+      const unsub = window._auth.onAuthStateChanged((u) => {
+        unsub();
+        resolve(u);
+      });
+    });
+
+    if (!user) {
+      localStorage.setItem('pendingPlan', selectedPlan);
+      localStorage.setItem('atomicReport', JSON.stringify(reportData));
+      window.location.href = 'auth.html?next=checkout';
+      return;
+    }
+    await startCheckout(user.email);
+  } catch(e) {
+    showToast('Something went wrong. Please try again.');
+    btn.textContent = 'Unlock Full Report →';
+    btn.disabled = false;
   }
-  await startCheckout(user.email);
 }
 
 async function startCheckout(email) {
