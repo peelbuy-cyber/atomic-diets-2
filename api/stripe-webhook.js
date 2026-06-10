@@ -1,40 +1,57 @@
 // api/stripe-webhook.js
 // Stripe Webhook endpoint for Atomic Diets
+// Clean version: verifies signature and logs events.
+// Firebase updates will be wired once we have correct userId mapping.
 
 import Stripe from "stripe";
 
 export default async function handler(req, res) {
-  // Webhooks require raw body for signature verification.
-  // Vercel/Next-like environments provide body parsing; to keep compatibility,
-  // we attempt to use req.body as-is and also allow string fallback.
-  try {
-    if (req.method !== "POST") {
-      return res.status(405).send("Method not allowed");
-    }
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-    const sig = req.headers["stripe-signature"];
-    if (!sig) {
+  try {
+    const signature = req.headers["stripe-signature"];
+    if (!signature) {
       return res.status(400).send("Missing stripe-signature header");
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
     if (!webhookSecret) {
       return res.status(500).send("Missing STRIPE_WEBHOOK_SECRET env var");
     }
 
-    // If your platform supplies parsed JSON, signature verification will fail.
-    // In Vercel, you may need to disable body parsing for this function.
-    // For now we try to reconstruct raw body if possible.
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2024-06-20"
+    });
+
+    // Vercel may provide parsed body; we need the raw body for signature verification.
+    // We'll attempt to reconstruct raw JSON string.
     const rawBody =
-      typeof req.body === "string" ? req.body : JSON.stringify(req.body || {});
+      typeof req.body === "string" ? req.body : JSON.stringify(req.body ?? {});
 
-    const event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
+    const event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
 
-    // Handle the event types we care about
-    // (You can expand later.)
     const eventType = event.type;
+    const obj = event.data?.object ?? {};
+
+    console.log("[stripe webhook] type:", eventType);
+    console.log("[stripe webhook] object:", {
+      id: obj.id,
+      customer: obj.customer,
+      subscription: obj.subscription,
+      metadata: obj.metadata
+    });
+
+    // TODO (later): update Firebase via REST once userId mapping is confirmed.
+    // For now just acknowledge receipt.
+
+    return res.status(200).json({ received: true });
+  } catch (err) {
+    console.error("stripe webhook error:", err?.message || err);
+    return res.status(400).send(`Webhook Error: ${err?.message || "Bad Request"}`);
+  }
+}    const eventType = event.type;
     const obj = event.data?.object || {};
 
     console.log("[stripe webhook] type:", eventType);
