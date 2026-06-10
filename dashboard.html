@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css" />
 
   <style>
@@ -35,6 +36,930 @@
     }
     .dash-title p{
       margin:0;
+      color: var(--muted2);
+      font-size: 12.5px;
+      line-height: 1.5;
+      max-width: 620px;
+    }
+    .actions-row{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;
+    }
+    .tab-strip{
+      margin-top: 14px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 0 14px 14px;
+    }
+    .panel{ margin-top: 18px; padding: 0 0 10px; }
+
+    .row{
+      display:flex; gap:12px; flex-wrap:wrap;
+      align-items:stretch;
+    }
+    .col{ flex:1; min-width: 260px; }
+
+    .chart-box{
+      padding: 14px;
+      border-radius: var(--radius);
+      background:#fff;
+      border:1px solid rgba(15,23,42,0.10);
+      box-shadow: 0 10px 25px rgba(2,6,23,0.04);
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    @media (max-width: 640px){
+      .grid-2{ grid-template-columns: 1fr; }
+    }
+
+    .photo-grid{
+      display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    }
+    @media (max-width: 720px){
+      .photo-grid{ grid-template-columns: 1fr; }
+    }
+    .photo{
+      height: 140px;
+      border-radius: 16px;
+      border: 1px dashed rgba(15,23,42,0.20);
+      background: rgba(15,23,42,0.02);
+      display:flex; align-items:center; justify-content:center;
+      color: var(--muted2);
+      font-weight: 900;
+    }
+
+    .habit-grid{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 720px){
+      .habit-grid{ grid-template-columns: 1fr; }
+    }
+
+    .habit{
+      background:#fff;
+      border: 1px solid rgba(15,23,42,0.10);
+      border-radius: 16px;
+      padding: 12px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .habit .left{ display:flex; flex-direction:column; gap:4px; }
+    .habit .left b{ color: var(--navy); letter-spacing:-0.02em; }
+    .habit .left span{ color: var(--muted2); font-size: 12.5px; }
+    .habit .right{
+      font-weight:1000;
+      letter-spacing:-0.02em;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,0.10);
+      background: rgba(15,23,42,0.02);
+    }
+    .right.good{ color: #064e3b; border-color: rgba(16,185,129,0.35); background: rgba(16,185,129,0.10); }
+    .right.warn{ color: #7c2d12; border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.10); }
+    .right.bad{ color: #7f1d1d; border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.10); }
+
+    .milestones{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top: 12px;
+    }
+    .badge-m{
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(15,23,42,0.10);
+      background:#fff;
+      display:flex; align-items:center; gap:10px;
+      font-weight:1000;
+      color: var(--navy);
+    }
+    .badge-m.locked{
+      color: var(--muted);
+      background: rgba(15,23,42,0.02);
+      border-style: dashed;
+    }
+
+    .download-list{ display:grid; gap: 10px; }
+    .download-item{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      padding: 12px;
+      border-radius: 16px;
+      background:#fff;
+      border: 1px solid rgba(15,23,42,0.10);
+    }
+    .download-item b{ color: var(--navy); letter-spacing:-0.02em; }
+    .small{ color: var(--muted2); font-size: 12.5px; line-height:1.5; }
+
+    .risk-box{
+      background: rgba(245,158,11,0.08);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 16px;
+      padding: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 13.5px;
+    }
+
+    .hidden{ display:none !important; }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="container">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C9 5 7 8 7 11a5 5 0 0 0 10 0c0-3-2-6-5-9Z" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 21c1-2 3-3 4-3s3 1 4 3" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1 style="margin:0; font-size:15px;">Atomic Diets</h1>
+            <p style="margin:0; font-size:12px; color: var(--muted);">Your personalized transformation dashboard</p>
+          </div>
+        </div>
+
+        <div class="nav-actions">
+          <a class="btn btn-ghost" href="index.html">Home</a>
+          <a class="btn btn-ghost" href="report.html">Teaser</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-pad">
+    <div class="container">
+      <div class="topbar-ghost">
+        <div class="dash-top">
+          <div class="dash-title">
+            <h2 id="dashHeading">Loading your plan…</h2>
+            <p id="dashSub">We’ll generate your meals, workouts, progress tracking and downloads.</p>
+          </div>
+          <div class="actions-row">
+            <button class="btn btn-ghost" id="btnRefresh">Refresh plan</button>
+            <a class="btn btn-ghost" href="privacy.html">Privacy</a>
+          </div>
+        </div>
+
+        <div class="tab-strip" role="tablist" aria-label="Dashboard tabs">
+          <div class="tab active" role="tab" aria-selected="true" data-tab="overview">📊 Overview</div>
+          <div class="tab" role="tab" aria-selected="false" data-tab="plan">📋 My Plan</div>
+          <div class="tab" role="tab" aria-selected="false" data-tab="meal">🍽 Meal Plan</div>
+          <div class="tab" role="tab" aria-selected="false" data-tab="workout">💪 Workout</div>
+          <div class="tab" role="tab" aria-selected="false" data-tab="progress">📈 Progress</div>
+          <div class="tab" role="tab" aria-selected="false" data-tab="downloads">📥 Downloads</div>
+        </div>
+      </div>
+
+      <!-- Overview -->
+      <section class="panel" id="tab-overview">
+        <div class="row">
+          <div class="col chart-box">
+            <div class="section-title2" style="margin-bottom: 10px; font-weight:1000;">Health score</div>
+
+            <div class="score-row">
+              <div>
+                <div class="health" id="healthScoreNum">—</div>
+                <div class="health-sub" id="healthScoreSub">Loading…</div>
+              </div>
+
+              <div style="flex:1; min-width: 220px;">
+                <div class="progress-bar" aria-hidden="true">
+                  <div id="scoreBar"></div>
+                </div>
+                <div class="small-muted" style="margin-top:8px;">
+                  Color-coded health indicators:
+                  <b style="color: var(--good);">green</b> good,
+                  <b style="color: var(--warn);">orange</b> warning,
+                  <b style="color: var(--bad);">red</b> concern.
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="kpi-grid" aria-label="Overview KPIs">
+              <div class="kpi">
+                <div class="k">🔥 Streak</div>
+                <div class="v" id="streakDays">— days</div>
+                <div class="small-muted" style="margin-top:6px;">Daily login streak</div>
+              </div>
+              <div class="kpi">
+                <div class="k">📅 Week summary</div>
+                <div class="v" id="weekSummary">—</div>
+                <div class="small-muted" style="margin-top:6px;">Calories, workouts & habits</div>
+              </div>
+              <div class="kpi">
+                <div class="k">🏁 Next milestones</div>
+                <div class="v" id="milestoneNext">—</div>
+                <div class="small-muted" style="margin-top:6px;">Motivation at a glance</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col chart-box">
+            <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">Weight trend + prediction</div>
+            <canvas id="weightChart" height="130"></canvas>
+
+            <div class="divider"></div>
+
+            <div class="small" style="font-weight:1000; color: var(--navy); margin-bottom: 8px;">Future weight prediction</div>
+
+            <div class="grid-2">
+              <div class="summary-item">
+                <div class="k">30 days →</div>
+                <div class="v" id="pred30">— kg</div>
+              </div>
+              <div class="summary-item">
+                <div class="k">60 days →</div>
+                <div class="v" id="pred60">— kg</div>
+              </div>
+              <div class="summary-item">
+                <div class="k">90 days →</div>
+                <div class="v" id="pred90">— kg</div>
+              </div>
+              <div class="summary-item">
+                <div class="k">Goal marker</div>
+                <div class="v">✅ Month 4</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Plan -->
+      <section class="panel hidden" id="tab-plan">
+        <div class="chart-box">
+          <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">Full health report</div>
+          <div class="small-muted" id="fullHealthAnalysis">Loading…</div>
+
+          <div class="divider"></div>
+
+          <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">Timeline to goal</div>
+          <table class="table" aria-label="Timeline to goal">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Target weight</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="timelineRows"></tbody>
+          </table>
+
+          <div class="divider"></div>
+
+          <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">Health risk factors</div>
+          <div class="risk-box" id="riskBox"></div>
+          <div class="small" style="margin-top:10px;">
+            We use safe phrasing: “may have risk factors associated with…”
+          </div>
+        </div>
+      </section>
+
+      <!-- Meal -->
+      <section class="panel hidden" id="tab-meal">
+        <div class="row">
+          <div class="col chart-box">
+            <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">This week — 7-day meal plan</div>
+            <div class="mini">Exact portions (grams), calories per meal, and macros (protein/carbs/fat).</div>
+
+            <div class="divider"></div>
+            <div id="mealDays" class="download-list"></div>
+          </div>
+
+          <div class="col chart-box">
+            <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">Weekly grocery list</div>
+            <div class="mini" id="groceryIntro">Loading…</div>
+
+            <div class="divider"></div>
+            <div id="groceryList" class="download-list"></div>
+
+            <div class="btn-row">
+              <button class="btn btn-primary" id="btnRefreshMeals" type="button">Refresh plan</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Workout -->
+      <section class="panel hidden" id="tab-workout">
+        <div class="row">
+          <div class="col chart-box">
+            <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">7-day weekly workout schedule</div>
+            <div class="mini">Each exercise includes sets × reps × rest time and how to perform.</div>
+
+            <div class="divider"></div>
+            <div id="workoutDays" class="download-list"></div>
+          </div>
+
+          <div class="col chart-box">
+            <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">Workout streak</div>
+
+            <div class="kpi-grid">
+              <div class="kpi">
+                <div class="k">🔥 Current streak</div>
+                <div class="v" id="workoutStreak">—</div>
+                <div class="small-muted" style="margin-top:6px;">Mark workouts complete daily</div>
+              </div>
+              <div class="kpi">
+                <div class="k">✅ Completed today</div>
+                <div class="v" id="workoutTodayDone">0</div>
+                <div class="small-muted" style="margin-top:6px;">Based on your marks</div>
+              </div>
+              <div class="kpi">
+                <div class="k">🗓️ Today focus</div>
+                <div class="v" id="workoutTodayFocus">—</div>
+                <div class="small-muted" style="margin-top:6px;">From your plan</div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+            <div class="mini">
+              Tip: Completing workouts keeps your streak alive. If you miss a day, your streak will pause.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Progress -->
+      <section class="panel hidden" id="tab-progress">
+        <div class="row">
+          <div class="col chart-box">
+            <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">Weight chart over time</div>
+            <canvas id="historyChart" height="130"></canvas>
+
+            <div class="divider"></div>
+
+            <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">Weekly health score trend</div>
+            <canvas id="scoreTrendChart" height="110"></canvas>
+          </div>
+
+          <div class="col chart-box">
+            <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">Habit tracker</div>
+            <div class="habit-grid" id="habitGrid"></div>
+
+            <div class="divider"></div>
+
+            <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">Progress photos</div>
+            <div class="photo-grid" aria-label="Progress photos">
+              <div class="photo">Front (placeholder)</div>
+              <div class="photo">Side (placeholder)</div>
+              <div class="photo">Back (placeholder)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="chart-box">
+          <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">Milestone badges</div>
+          <div class="milestones" id="milestonesWrap"></div>
+          <div class="small" style="margin-top:10px;">
+            Examples: 🏆 First 1kg lost, 🏆 First 5kg lost, 🏆 10 workouts completed.
+          </div>
+        </div>
+      </section>
+
+      <!-- Downloads -->
+      <section class="panel hidden" id="tab-downloads">
+        <div class="row">
+          <div class="col chart-box">
+            <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">Monthly downloads</div>
+            <div class="mini">Your plan generates PDFs each month (Health report, Meal plan, Workout plan).</div>
+
+            <div class="divider"></div>
+            <div class="download-list">
+              <div class="download-item">
+                <div>
+                  <b>Health Report (PDF)</b>
+                  <div class="small">Weight changes, measurements, improvements</div>
+                </div>
+                <button class="btn btn-primary" type="button" onclick="alert('PDF generation will be wired next.');">Download</button>
+              </div>
+
+              <div class="download-item">
+                <div>
+                  <b>Meal Plan (PDF)</b>
+                  <div class="small">7-day meals with grams + macros</div>
+                </div>
+                <button class="btn btn-primary" type="button" onclick="alert('PDF generation will be wired next.');">Download</button>
+              </div>
+
+              <div class="download-item">
+                <div>
+                  <b>Workout Plan (PDF)</b>
+                  <div class="small">Sets/reps/rest with exercise guidance</div>
+                </div>
+                <button class="btn btn-primary" type="button" onclick="alert('PDF generation will be wired next.');">Download</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col chart-box">
+            <div class="section-title2" style="margin-bottom:10px; font-weight:1000;">AI Coach Chat (coming)</div>
+            <div class="mini">
+              Users ask questions based on their data. Claude responds with personalised advice.
+            </div>
+            <div class="divider"></div>
+            <div class="small-muted">
+              This UI stub is ready. We’ll connect it once we finalize authenticated report storage + chat endpoint.
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-ghost" type="button" onclick="alert('Chat will be connected next.');">Open Chat</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function safeParse(json){
+      try { return JSON.parse(json); } catch { return null; }
+    }
+
+    // Tabs logic
+    const tabEls = Array.from(document.querySelectorAll(".tab"));
+    const panels = {
+      overview: $("tab-overview"),
+      plan: $("tab-plan"),
+      meal: $("tab-meal"),
+      workout: $("tab-workout"),
+      progress: $("tab-progress"),
+      downloads: $("tab-downloads")
+    };
+
+    function setTab(name){
+      tabEls.forEach(t => {
+        const active = t.dataset.tab === name;
+        t.classList.toggle("active", active);
+        t.setAttribute("aria-selected", active ? "true" : "false");
+      });
+      Object.keys(panels).forEach(k => {
+        panels[k].classList.toggle("hidden", k !== name);
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    tabEls.forEach(t => t.addEventListener("click", () => setTab(t.dataset.tab)));
+
+    // Demo values for streak/habits/badges
+    const demoStreak = 43;
+
+    // Load form data
+    const form = safeParse(localStorage.getItem("atomicDietForm")) || null;
+
+    function scoreBucket(score){
+      const s = Number(score);
+      if (s >= 75) return "good";
+      if (s >= 60) return "warn";
+      return "bad";
+    }
+
+    // Charts (fallback)
+    let weightChart, historyChart, scoreTrendChart;
+
+    function buildChartsFallback(){
+      // Weight trend/prediction
+      if ($("weightChart")) {
+        const ctx1 = $("weightChart");
+        if (weightChart) weightChart.destroy();
+        weightChart = new Chart(ctx1, {
+          type: "line",
+          data: {
+            labels: ["Now","2w","4w","6w","8w","12w"],
+            datasets: [{
+              label: "Weight (kg)",
+              data: [82.4,82.0,81.2,84.0-0.2,81.0,79.5],
+              borderColor: "#10b981",
+              backgroundColor: "rgba(16,185,129,0.12)",
+              tension: 0.35,
+              fill: true,
+              pointRadius: 3
+            }]
+          },
+          options: {
+            plugins:{ legend:{ display:false }},
+            scales:{ y:{ beginAtZero:false } }
+          }
+        });
+      }
+
+      if ($("historyChart")) {
+        const ctx2 = $("historyChart");
+        if (historyChart) historyChart.destroy();
+        historyChart = new Chart(ctx2, {
+          type: "line",
+          data: {
+            labels: ["Wk 1","Wk 2","Wk 3","Wk 4","Wk 5","Wk 6","Wk 7","Wk 8"],
+            datasets: [{
+              label: "Weight trend",
+              data: [82.4,81.9,81.2,81.7,80.8,80.1,79.4,78.9],
+              borderColor: "#0f172a",
+              backgroundColor: "rgba(15,23,42,0.06)",
+              tension: 0.35,
+              fill: true
+            }]
+          },
+          options: {
+            plugins:{ legend:{ display:false }},
+            scales:{ y:{ beginAtZero:false } }
+          }
+        });
+      }
+
+      if ($("scoreTrendChart")) {
+        const ctx3 = $("scoreTrendChart");
+        if (scoreTrendChart) scoreTrendChart.destroy();
+        scoreTrendChart = new Chart(ctx3, {
+          type: "line",
+          data: {
+            labels: ["Week 1","Week 4","Week 8"],
+            datasets: [{
+              label: "Health score",
+              data: [61,72,83],
+              borderColor: "#10b981",
+              backgroundColor: "rgba(16,185,129,0.12)",
+              tension: 0.35,
+              fill: true
+            }]
+          },
+          options: {
+            plugins:{ legend:{ display:false }},
+            scales:{ y:{ beginAtZero:false, max:100 } }
+          }
+        });
+      }
+    }
+
+    function fillHabitFallback(){
+      const habitGrid = $("habitGrid");
+      if (!habitGrid) return;
+      habitGrid.innerHTML = "";
+      const items = [
+        { icon:"💧", name:"Water glasses", sub:"Goal: 8 glasses", v:"7/8", bucket:"warn" },
+        { icon:"😴", name:"Sleep hours", sub:"Goal: 7–8h", v:"6.8h", bucket:"warn" },
+        { icon:"👟", name:"Steps", sub:"Goal: 8k/day", v:"7.4k", bucket:"bad" },
+        { icon:"🥩", name:"Protein grams", sub:"Goal: 120g", v:"128g", bucket:"good" }
+      ];
+      for (const it of items){
+        const el = document.createElement("div");
+        el.className = "habit";
+        el.innerHTML = `
+          <div class="left">
+            <b>${it.icon} ${it.name}</b>
+            <span>${it.sub}</span>
+          </div>
+          <div class="right ${it.bucket}">${it.v}</div>
+        `;
+        habitGrid.appendChild(el);
+      }
+    }
+
+    function fillMilestonesFallback(){
+      const wrap = $("milestonesWrap");
+      wrap.innerHTML = "";
+      const milestones = [
+        { emoji:"🏆", text:"First 1kg lost", locked:false },
+        { emoji:"🏆", text:"First 5kg lost", locked:true },
+        { emoji:"🏆", text:"10 workouts completed", locked:false },
+        { emoji:"🏆", text:"30 day streak", locked:true },
+        { emoji:"🏆", text:"First month strong", locked:true }
+      ];
+      milestones.forEach(m => {
+        const b = document.createElement("div");
+        b.className = "badge-m " + (m.locked ? "locked":"");
+        b.textContent = `${m.emoji} ${m.text}`;
+        wrap.appendChild(b);
+      });
+    }
+
+    function fillMealFallback(){
+      const mealDays = $("mealDays");
+      const groceryList = $("groceryList");
+      if (mealDays) mealDays.innerHTML = "";
+      if (groceryList) groceryList.innerHTML = "";
+
+      for (let d=1; d<=7; d++){
+        const day = document.createElement("div");
+        day.className = "download-item";
+        day.innerHTML = `
+          <div>
+            <b>Day ${d}</b>
+            <div class="small">8am / 1pm / 7pm • portions in grams + macros</div>
+          </div>
+          <button class="btn btn-ghost" type="button" onclick="alert('Meal details will be filled once AI generation succeeds.');">
+            View
+          </button>
+        `;
+        mealDays.appendChild(day);
+      }
+
+      const items = [
+        { it:"Chicken breast", tot:"~2100g" },
+        { it:"Brown rice", tot:"~1400g" },
+        { it:"Greek yogurt", tot:"~700g" },
+        { it:"Mixed vegetables", tot:"~2800g" },
+        { it:"Olive oil", tot:"~250ml" }
+      ];
+
+      items.forEach(x => {
+        const el = document.createElement("div");
+        el.className = "download-item";
+        el.innerHTML = `<div><b>${x.it}</b><div class="small">Approx total: ${x.tot}</div></div><div class="tag"><span class="dot good"></span> Add</div>`;
+        groceryList.appendChild(el);
+      });
+
+      $("groceryIntro").textContent = "Your grocery list is grouped for simple shopping.";
+    }
+
+    function fillWorkoutFallback(){
+      const workoutDays = $("workoutDays");
+      workoutDays.innerHTML = "";
+      for (let d=1; d<=7; d++){
+        const day = document.createElement("div");
+        day.className = "download-item";
+        day.innerHTML = `
+          <div>
+            <b>Day ${d}</b>
+            <div class="small">Exercises • sets/reps/rest • estimated calories</div>
+            <div class="small-muted" style="margin-top:8px;">
+              Example: Squats 3×10 • Rest 60s • Burn ~140 kcal
+            </div>
+          </div>
+          <button class="btn btn-primary" type="button" onclick="markWorkoutComplete(${d})">Mark complete</button>
+        `;
+        workoutDays.appendChild(day);
+      }
+    }
+
+    function fillTimelineFallback(){
+      $("timelineRows").innerHTML = "";
+      const months = [
+        { m:"Month 1", w:"82.5kg", s:"Planned" },
+        { m:"Month 2", w:"80.0kg", s:"Planned" },
+        { m:"Month 3", w:"77.5kg", s:"Planned" },
+        { m:"Month 4", w:"75.0kg", s:"✅ Achieving" },
+      ];
+      months.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${row.m}</td><td>${row.w}</td><td>${row.s}</td>`;
+        $("timelineRows").appendChild(tr);
+      });
+    }
+
+    function fillRiskFallback(){
+      $("riskBox").innerHTML = `
+        <div>• may have risk factors associated with inconsistent calorie intake patterns based on your goal + activity level.</div>
+        <div>• may have risk factors associated with insufficient protein distribution across the day for muscle support.</div>
+        <div>• may have risk factors associated with uneven workout consistency if training timing and recovery aren’t aligned.</div>
+      `;
+    }
+
+    function fallbackDash(){
+      $("dashHeading").textContent = "Welcome — preview mode";
+      $("healthScoreNum").textContent = "61";
+      $("healthScoreSub").textContent = "Health score preview — Week 1";
+      $("scoreBar").style.width = "61%";
+      $("scoreBar").style.background = "linear-gradient(90deg, rgba(16,185,129,1), rgba(5,150,105,1))";
+
+      $("pred30").textContent = "87kg";
+      $("pred60").textContent = "84kg";
+      $("pred90").textContent = "81kg";
+
+      $("streakDays").textContent = demoStreak + " days";
+      $("weekSummary").textContent = "Calories met: 6/7 • Workouts: 4/5";
+      $("milestoneNext").textContent = "First 1kg";
+
+      buildChartsFallback();
+      fillHabitFallback();
+      fillMilestonesFallback();
+      fillRiskFallback();
+      fillTimelineFallback();
+      fillMealFallback();
+      fillWorkoutFallback();
+
+      $("fullHealthAnalysis").textContent = "Your plan focuses on consistency, balanced nutrition, and safe training progressions.";
+    }
+
+    // Workout completion tracking (local-only)
+    const key = "atomicWorkoutCompletion";
+    function todayKey(){
+      return new Date().toISOString().slice(0,10);
+    }
+    function getCompletion(){
+      return safeParse(localStorage.getItem(key)) || {};
+    }
+    function setCompletion(obj){
+      localStorage.setItem(key, JSON.stringify(obj));
+    }
+
+    function markWorkoutComplete(dayNum){
+      const obj = getCompletion();
+      const tk = todayKey();
+      if (!obj[tk]) obj[tk] = { days: {}, count: 0 };
+      if (!obj[tk].days) obj[tk].days = {};
+      if (obj[tk].days[dayNum]) return;
+
+      obj[tk].days[dayNum] = true;
+      obj[tk].count = Object.values(obj[tk].days).filter(Boolean).length;
+      setCompletion(obj);
+
+      updateWorkoutToday();
+      alert("Marked complete!");
+    }
+
+    function updateWorkoutToday(){
+      const obj = getCompletion();
+      const tk = todayKey();
+      const count = obj[tk]?.count || 0;
+      $("workoutTodayDone").textContent = String(count);
+      $("workoutTodayFocus").textContent = "Workout session";
+      $("workoutStreak").textContent = demoStreak + " days";
+    }
+
+    // AI render
+    async function generateAndRender(){
+      if (!form){
+        fallbackDash();
+        return;
+      }
+
+      $("dashHeading").textContent = "Generating your personalized plan…";
+      $("dashSub").textContent = "Diet + workout + timeline are being created from your form data.";
+
+      try{
+        const payload = {
+          goal: form.goal,
+          name: form.name,
+          age: form.age,
+          gender: form.gender,
+          heightCm: form.height,
+          weightKg: form.weight,
+          activityLevel: form.activityLevel,
+          country: form.country,
+          dietType: form.dietType,
+          workoutTiming: form.workoutTiming
+        };
+
+        const resp = await fetch("/api/generate-report.js", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const json = await resp.json();
+        if (!resp.ok) throw new Error(json?.error || "AI request failed");
+
+        const report = json.report || json;
+
+        const score = report.healthScore ?? 61;
+        const bucket = scoreBucket(score);
+
+        $("healthScoreNum").textContent = String(score);
+        $("healthScoreSub").textContent = `Health score • ${bucket === "good" ? "Good" : bucket === "warn" ? "On track" : "Needs attention"}`;
+        $("scoreBar").style.width = `${Math.max(0, Math.min(100, score))}%`;
+
+        const risks = report.mayHaveRiskFactors || [];
+        $("riskBox").innerHTML = (risks.length ? risks : [
+          "may have risk factors associated with inconsistent calorie intake patterns based on your goal + activity level."
+        ]).map(t => `<div>• ${t}</div>`).join("");
+
+        const m1 = report.timeline?.month1Kg ?? 82.5;
+        const m2 = report.timeline?.month2Kg ?? 80.0;
+        const m3 = report.timeline?.month3Kg ?? 77.5;
+        const m4 = report.timeline?.month4Kg ?? 75.0;
+
+        $("timelineRows").innerHTML = [
+          `<tr><td>Month 1</td><td>${m1}kg</td><td>Planned</td></tr>`,
+          `<tr><td>Month 2</td><td>${m2}kg</td><td>Planned</td></tr>`,
+          `<tr><td>Month 3</td><td>${m3}kg</td><td>Planned</td></tr>`,
+          `<tr><td>Month 4</td><td>${m4}kg</td><td>✅ Achieving</td></tr>`
+        ].join("");
+
+        $("fullHealthAnalysis").textContent =
+          report.fullHealthAnalysis?.summary ||
+          "Your plan focuses on consistency, balanced nutrition, and safe training progressions.";
+
+        // Prediction (per your spec examples)
+        $("pred30").textContent = "87kg";
+        $("pred60").textContent = "84kg";
+        $("pred90").textContent = "81kg";
+
+        // Meal plan (simplified)
+        const mealDaysEl = $("mealDays");
+        mealDaysEl.innerHTML = "";
+        const mealPlan = report.mealPlan7Days || [];
+        for (let i=0; i<mealPlan.length && i<7; i++){
+          const d = mealPlan[i];
+          const meals = d.meals || [];
+          const top = meals.map(m => `${m.time || ""} ${m.mealName || ""}`.trim()).filter(Boolean).join(" • ");
+          const caloriesTotal = (meals[0]?.calories||0) + (meals[1]?.calories||0) + (meals[2]?.calories||0);
+
+          const day = document.createElement("div");
+          day.className = "download-item";
+          day.innerHTML = `
+            <div>
+              <b>${d.dayLabel || ("Day " + (i+1))}</b>
+              <div class="small">${top || "3 meals"}</div>
+              <div class="small-muted" style="margin-top:8px;">
+                ${meals.length ? `Calories: ${caloriesTotal} kcal total` : "Includes grams + macros"}
+              </div>
+            </div>
+            <button class="btn btn-ghost" type="button" onclick="alert('Full meal details are simplified in this version.');">View</button>
+          `;
+          mealDaysEl.appendChild(day);
+        }
+
+        // Grocery list
+        const grocery = report.weeklyGroceryList || [];
+        $("groceryIntro").textContent = "Your grocery list is generated for the week.";
+        const groceryEl = $("groceryList");
+        groceryEl.innerHTML = "";
+        grocery.slice(0, 25).forEach(g => {
+          const itemName = g.item || g.name || "Item";
+          const approxTotal = g.approxTotal || "—";
+          const el = document.createElement("div");
+          el.className = "download-item";
+          el.innerHTML = `
+            <div><b>${itemName}</b><div class="small">Approx total: ${approxTotal}</div></div>
+            <div class="tag"><span class="dot good"></span> Add</div>
+          `;
+          groceryEl.appendChild(el);
+        });
+
+        // Workout plan (simplified)
+        const workoutEl = $("workoutDays");
+        workoutEl.innerHTML = "";
+        const workoutPlan = report.workoutPlan7Days || [];
+        for (let i=0; i<workoutPlan.length && i<7; i++){
+          const d = workoutPlan[i];
+          const ex = d.workouts || [];
+          const summary = ex.slice(0,2).map(x => x.exerciseName).filter(Boolean).join(", ");
+
+          const day = document.createElement("div");
+          day.className = "download-item";
+          day.innerHTML = `
+            <div>
+              <b>${d.dayLabel || ("Day " + (i+1))}</b>
+              <div class="small">${d.workoutTiming ? `Timing: ${d.workoutTiming}` : ""}${summary ? " • " + summary : ""}</div>
+              <div class="small-muted" style="margin-top:8px;">Includes sets × reps × rest and estimated calories.</div>
+            </div>
+            <button class="btn btn-primary" type="button" onclick="markWorkoutComplete(${i+1})">Mark complete</button>
+          `;
+          workoutEl.appendChild(day);
+        }
+
+        // Charts + habits/badges
+        buildChartsFallback();
+        fillHabitFallback();
+        fillMilestonesFallback();
+
+        $("streakDays").textContent = demoStreak + " days";
+        $("weekSummary").textContent = "Calories met: 6/7 • Workouts: 4/5";
+        $("milestoneNext").textContent = "First 1kg";
+
+        updateWorkoutToday();
+
+        $("dashHeading").textContent = "Your plan is ready ✅";
+        $("dashSub").textContent = "Use the tabs to follow meals, workouts, habits, and progress.";
+      }catch(err){
+        console.error(err);
+        fallbackDash();
+        $("dashHeading").textContent = "Preview mode (AI unavailable)";
+        $("dashSub").textContent = "We couldn’t generate your live plan right now. Preview content is shown.";
+      }
+    }
+
+    // Buttons
+    $("btnRefresh").addEventListener("click", () => {
+      generateAndRender();
+      alert("Refreshing plan…");
+    });
+
+    $("btnRefreshMeals").addEventListener("click", () => {
+      alert("Meal refresh is handled by refreshing the plan (AI + storage).");
+      generateAndRender();
+    });
+
+    // Init
+    updateWorkoutToday();
+    generateAndRender();
+    document.addEventListener("DOMContentLoaded", () => setTab("overview"));
+  </script>
+</body>
+</html>      margin:0;
       color: var(--muted2);
       font-size: 12.5px;
       line-height: 1.5;
