@@ -1,5 +1,5 @@
 {
   "functions": {
-    "nodeVersion": "20.x"
+    "nodeVersion": { "default": "20.x" }
   }
 }
