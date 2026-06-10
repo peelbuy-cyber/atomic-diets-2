@@ -1,40 +1,267 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Payment Successful — Atomic Diets</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atomic Diets — Choose Plan</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+
   <style>
-    .success-page {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--gray-50);
-      padding: 24px;
+    .page-pad{ padding: 26px 0 70px; }
+    .grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 900px){ .grid-2{ grid-template-columns: 1fr; } }
+
+    .summary-card{ padding: 18px; }
+    .summary-title{ font-weight: 1000; letter-spacing:-0.02em; color: var(--navy); margin-bottom: 6px; }
+    .summary-row{ display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap; margin-top:12px; }
+    .summary-item{
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(15,23,42,0.10);
+      background:#fff;
+      min-width: 160px;
+      flex: 1;
     }
-    .success-card {
-      background: var(--white);
-      border: 1px solid var(--gray-200);
-      border-radius: 24px;
-      padding: 48px;
-      max-width: 480px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    .summary-item .k{ color: var(--muted); font-weight: 900; font-size: 12.5px; }
+    .summary-item .v{ margin-top:6px; font-weight:1000; letter-spacing:-0.02em; }
+
+    .plans{
+      display:grid;
+      gap: 12px;
     }
-    .success-icon {
-      width: 80px; height: 80px;
-      background: #dcfce7;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 36px;
-      margin: 0 auto 24px;
-      animation: popIn 0.5s ease;
+    .plan-btn{
+      width:100%;
+      margin-top: 14px;
     }
+    .best-row{
+      display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .muted{ color: var(--muted); }
+    .tiny{ color: var(--muted2); font-size: 12.5px; line-height:1.6; margin-top: 10px; }
+
+    /* Lock to show users this is paywall step (no actual stripe yet) */
+    .pay-cta{
+      display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-top: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px dashed rgba(15,23,42,0.18);
+      background: rgba(15,23,42,0.02);
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="container">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C9 5 7 8 7 11a5 5 0 0 0 10 0c0-3-2-6-5-9Z" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 21c1-2 3-3 4-3s3 1 4 3" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1 style="margin:0; font-size:15px;">Atomic Diets</h1>
+            <p style="margin:0; font-size:12px; color: var(--muted);">Unlock your full dashboard</p>
+          </div>
+        </div>
+
+        <div class="nav-actions">
+          <a class="btn btn-ghost" href="report.html">Back to Teaser</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-pad">
+    <div class="container">
+      <div class="grid-2">
+        <div class="card summary-card anim-fade">
+          <div class="summary-title">Your plan is being prepared</div>
+          <div class="muted" id="summaryText">Loading your info…</div>
+
+          <div class="summary-row" style="margin-top:14px;">
+            <div class="summary-item">
+              <div class="k">Goal</div>
+              <div class="v" id="goalSummary">—</div>
+            </div>
+            <div class="summary-item">
+              <div class="k">Diet style</div>
+              <div class="v" id="dietSummary">—</div>
+            </div>
+          </div>
+
+          <div class="pay-cta" style="margin-top:14px;">
+            <div style="font-size:20px;">🔒</div>
+            <div>
+              <div style="font-weight:1000; color: var(--navy); letter-spacing:-0.02em;">Full report is locked</div>
+              <div class="tiny">Choose a plan. Then you’ll unlock Meals, Workouts, Progress, and monthly PDFs.</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="tiny">
+            Health is personal. This app provides educational guidance and is not medical advice.
+          </div>
+        </div>
+
+        <div class="plans">
+          <!-- Free -->
+          <div class="price-card">
+            <div class="price-top">
+              <div>
+                <div class="price-name">Free</div>
+                <div class="mini">Teaser only</div>
+              </div>
+              <div class="tag"><span class="dot warn"></span> $0</div>
+            </div>
+            <ul class="list">
+              <li><span class="check">✓</span> Preview health score</li>
+              <li><span class="check">✓</span> Locked meals/workouts</li>
+            </ul>
+            <button class="btn btn-ghost plan-btn" type="button" data-plan="free" id="btnFree" disabled>
+              Free plan (already unlocked teaser)
+            </button>
+          </div>
+
+          <!-- Pro Monthly -->
+          <div class="price-card">
+            <div class="price-top">
+              <div>
+                <div class="price-name">Pro Monthly</div>
+                <div class="mini">All dashboard features</div>
+              </div>
+              <div class="tag"><span class="dot good"></span> $24.99/mo</div>
+            </div>
+
+            <div class="price">
+              $24.99 <span class="per">/ month</span>
+            </div>
+
+            <ul class="list">
+              <li><span class="check">✓</span> 3 AI reports/month</li>
+              <li><span class="check">✓</span> Monthly PDFs</li>
+              <li><span class="check">✓</span> Habit tracking + downloads</li>
+            </ul>
+
+            <button class="btn btn-primary plan-btn" type="button" data-plan="pro_monthly" id="btnMonthly">
+              Continue to payment
+            </button>
+            <div class="tiny">Stripe checkout will be connected next (File 10).</div>
+          </div>
+
+          <!-- Pro Yearly (Best value) -->
+          <div class="price-card highlight">
+            <div class="best-row">
+              <div>
+                <div class="price-name">Pro Yearly</div>
+                <div class="mini">BEST VALUE</div>
+              </div>
+              <div class="tag"><span class="dot good"></span> $199/year</div>
+            </div>
+
+            <div style="margin-top:10px;">
+              <span class="save-tag">⭐ SAVE $101 vs monthly</span>
+            </div>
+
+            <div class="price">
+              $199 <span class="per">/ year</span>
+            </div>
+
+            <ul class="list">
+              <li><span class="check">✓</span> Best value for consistency</li>
+              <li><span class="check">✓</span> Monthly PDFs + downloads</li>
+              <li><span class="check">✓</span> Full dashboard access</li>
+            </ul>
+
+            <button class="btn btn-primary plan-btn" type="button" data-plan="pro_yearly" id="btnYearly">
+              Continue to payment (Recommended)
+            </button>
+
+            <div class="tiny">This matches the requirement: BEST VALUE — Pro Yearly $199/year.</div>
+          </div>
+
+          <!-- Trainer Pro -->
+          <div class="price-card">
+            <div class="price-top">
+              <div>
+                <div class="price-name">Trainer Pro</div>
+                <div class="mini">Unlimited reports</div>
+              </div>
+              <div class="tag"><span class="dot warn"></span> $97/mo</div>
+            </div>
+
+            <div class="price">
+              $97 <span class="per">/ month</span>
+            </div>
+
+            <ul class="list">
+              <li><span class="check">✓</span> Unlimited AI reports</li>
+              <li><span class="check">✓</span> Full dashboard + downloads</li>
+            </ul>
+
+            <button class="btn btn-primary plan-btn" type="button" data-plan="trainer_monthly" id="btnTrainer">
+              Continue to payment
+            </button>
+            <div class="tiny">We’ll connect Trainer Pro checkout in File 10.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="container" style="padding:0;">
+          <div class="mini">
+            © <span id="year"></span> Atomic Diets. All rights reserved.
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function safeParse(json){
+      try { return JSON.parse(json); } catch { return null; }
+    }
+
+    const data = safeParse(localStorage.getItem('atomicDietForm')) || {};
+    const goalMap = {
+      "lose_weight":"Lose Weight",
+      "gain_muscle":"Gain Muscle",
+      "maintain_weight":"Maintain Weight",
+      "improve_fitness":"Improve Fitness",
+      "improve_health":"Improve Health"
+    };
+
+    const goalText = goalMap[data.goal] || (data.goal ? String(data.goal) : "—");
+    document.getElementById('goalSummary').textContent = goalText;
+    document.getElementById('dietSummary').textContent = data.dietType ? String(data.dietType) : "—";
+    document.getElementById('summaryText').textContent = "We’ll use your answers to generate your AI transformation plan.";
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Placeholder handlers (Stripe checkout wiring will come in File 10)
+    const buttons = [
+      { id: "btnMonthly", plan: "pro_monthly" },
+      { id: "btnYearly", plan: "pro_yearly" },
+      { id: "btnTrainer", plan: "trainer_monthly" }
+    ];
+
+    buttons.forEach(b => {
+      const el = document.getElementById(b.id);
+      el.addEventListener('click', () => {
+        alert("Payment checkout will be connected next (File 10: api/create-checkout.js). Selected: " + b.plan);
+      });
+    });
+  </script>
+</body>
+</html>    }
     @keyframes popIn {
       from { transform: scale(0); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
