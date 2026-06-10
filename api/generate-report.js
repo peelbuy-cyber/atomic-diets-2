@@ -1,7 +1,8 @@
 // api/generate-report.js
 // Generates the personalized health transformation plan using Anthropic Claude.
+// Returns strict JSON for the frontend dashboard.
 
-import fetch from "node-fetch";
+import Stripe from "stripe"; // (not used, but safe to remove later if you want)
 
 function buildPrompt(input) {
   const {
@@ -17,16 +18,6 @@ function buildPrompt(input) {
     workoutTiming
   } = input;
 
-  // Keep the prompt aligned with your spec:
-  // - Health score 0-100
-  // - Timeline to goal
-  // - 7-day meal plan with grams, calories, macros, timing
-  // - 7-day workout plan with sets x reps x rest + how to perform + estimated calories
-  // - Weekly grocery list
-  // - Use phrasing: "may have risk factors associated with ..." (never "you have diabetes" etc.)
-  //
-  // Also ensure output is strict JSON so the frontend can parse it reliably.
-
   return `
 You are an expert fitness nutrition coach and health content writer.
 
@@ -35,6 +26,166 @@ Generate a COMPLETE personalized health transformation plan for the user below.
 IMPORTANT REQUIREMENTS:
 1) Output MUST be valid JSON only (no markdown, no extra text).
 2) Include a "healthScore" integer from 0 to 100.
+3) Include "timeline" as monthly target weights for 4 months:
+   Month 1, Month 2, Month 3, Month 4.
+4) Include "mayHaveRiskFactors" as an array of strings.
+   - Each string MUST start with: "may have risk factors associated with"
+   - Never use medical diagnoses (never say "you have diabetes", etc.)
+5) Include meal plan:
+   - "mealPlan7Days": an array of 7 days.
+   - Each day has "meals": 3 meals with keys:
+     - time (8am/1pm/7pm style)
+     - mealName
+     - portionsGrams (object with item->grams)
+     - calories
+     - macros (protein_g, carbs_g, fat_g)
+6) Include workout plan:
+   - "workoutPlan7Days": an array of 7 days.
+   - Each day has "workouts": list of exercises.
+   - Each exercise must include:
+     - exerciseName
+     - sets
+     - reps
+     - restSeconds
+     - howToPerform (short)
+     - estimatedCaloriesBurned
+   - Include "workoutTiming" preference in each day output if possible.
+7) Weekly grocery list:
+   - "weeklyGroceryList": an array of items with approx totals.
+
+Return JSON schema:
+{
+  "healthScore": number,
+  "fullHealthAnalysis": {
+    "summary": string,
+    "whatToFocusOn": string[],
+    "consistencyPlan": string
+  },
+  "timeline": {
+    "month1Kg": number,
+    "month2Kg": number,
+    "month3Kg": number,
+    "month4Kg": number,
+    "milestones": string[]
+  },
+  "mayHaveRiskFactors": string[],
+  "mealPlan7Days": [
+    {
+      "dayLabel": "Day 1",
+      "meals": [
+        {
+          "time": "8am",
+          "mealName": "string",
+          "portionsGrams": { "item": 0 },
+          "calories": 0,
+          "macros": { "protein_g": 0, "carbs_g": 0, "fat_g": 0 }
+        }
+      ]
+    }
+  ],
+  "weeklyGroceryList": [
+    {"item":"string","approxTotal":"string"}
+  ],
+  "workoutPlan7Days": [
+    {
+      "dayLabel": "Day 1",
+      "workoutTiming": "Morning|Afternoon|Evening|string",
+      "workouts": [
+        {
+          "exerciseName":"string",
+          "sets":0,
+          "reps":0,
+          "restSeconds":0,
+          "howToPerform":"string",
+          "estimatedCaloriesBurned":0
+        }
+      ]
+    }
+  ]
+}
+
+USER DATA:
+- Name: ${name}
+- Goal: ${goal}
+- Age: ${age}
+- Gender: ${gender}
+- HeightCm: ${heightCm}
+- CurrentWeightKg: ${weightKg}
+- ActivityLevel: ${activityLevel}
+- Country: ${country}
+- DietType: ${dietType}
+- WorkoutTiming: ${workoutTiming}
+
+Now generate the JSON.`;
+}
+
+async function callAnthropic(prompt) {
+  const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": process.env.ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01"
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 5000,
+      temperature: 0.4,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+
+  const text = await anthropicRes.text();
+  if (!anthropicRes.ok) {
+    throw new Error(`Anthropic API error ${anthropicRes.status}: ${text.slice(0, 1200)}`);
+  }
+
+  const data = JSON.parse(text);
+  const contentText = data?.content?.[0]?.text;
+  if (!contentText) throw new Error("Unexpected Anthropic response format (missing content[0].text)");
+
+  // Claude should output JSON only. Still, handle if it includes wrappers.
+  let reportJson;
+  try {
+    reportJson = JSON.parse(contentText);
+  } catch (e) {
+    // Try to extract first {...} block
+    const firstBrace = contentText.indexOf("{");
+    const lastBrace = contentText.lastIndexOf("}");
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      reportJson = JSON.parse(contentText.slice(firstBrace, lastBrace + 1));
+    } else {
+      throw new Error("AI did not return valid JSON. " + (e?.message || String(e)));
+    }
+  }
+
+  return reportJson;
+}
+
+export default async function handler(req, res) {
+  try {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    const input = req.body || {};
+    const required = ["goal", "name", "age", "gender", "heightCm", "weightKg", "activityLevel", "country", "dietType", "workoutTiming"];
+    for (const k of required) {
+      if (input[k] === undefined || input[k] === null || input[k] === "") {
+        return res.status(400).json({ error: `Missing field: ${k}` });
+      }
+    }
+
+    const prompt = buildPrompt(input);
+
+    const report = await callAnthropic(prompt);
+
+    return res.status(200).json({ report });
+  } catch (err) {
+    console.error("generate-report error:", err);
+    return res.status(500).json({ error: err?.message || "Server error" });
+  }
+}2) Include a "healthScore" integer from 0 to 100.
 3) Include "timeline" as monthly target weights for 4 months:
    Month 1, Month 2, Month 3, Month 4.
 4) Include "mayHaveRiskFactors" as an array of strings.
