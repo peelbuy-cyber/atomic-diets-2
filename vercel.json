@@ -1,5 +1,1 @@
-{
-  "functions": {
-    "nodeVersion": { "default": "20.x" }
-  }
-}
+{}
