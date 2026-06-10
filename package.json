@@ -1,5 +1,9 @@
 {
-  "functions": {
-    "nodeVersion": "20.x"
+  "name": "atomic-diets",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "stripe": "^16.0.0"
   }
 }
