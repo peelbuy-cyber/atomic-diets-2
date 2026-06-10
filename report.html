@@ -30,11 +30,198 @@
       line-height: 1;
       color: var(--navy);
     }
-    .health-dot-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top: 10px; }
     .risk-list{ margin: 12px 0 0; padding:0; list-style:none; display:grid; gap: 10px; }
     .risk-item{
       padding: 12px;
       border-radius: 16px;
+      border: 1px solid rgba(15,23,42,0.10);
+      background: rgba(16,185,129,0.06);
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13.5px;
+    }
+    .lock{
+      display:flex; gap:10px; align-items:center;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px dashed rgba(15,23,42,0.18);
+      background: rgba(15,23,42,0.02);
+      color: var(--muted);
+      margin-top: 12px;
+      font-weight: 800;
+    }
+    .cta-row{
+      display:flex; gap: 12px; flex-wrap: wrap;
+      margin-top: 14px;
+      align-items:center;
+    }
+    .teaser-section{
+      margin-top: 16px;
+    }
+    .pill-row{ display:flex; gap: 10px; flex-wrap:wrap; }
+    .teaser-card{
+      background:#fff;
+      border: 1px solid rgba(15,23,42,0.10);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 25px rgba(2,6,23,0.05);
+      padding: 18px;
+    }
+    .placeholder{
+      color: var(--muted2);
+      font-weight: 800;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .section-title2{
+      margin:0 0 10px;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+      color: var(--navy);
+      font-weight: 1000;
+    }
+    .divider{
+      height:1px;
+      background: rgba(15,23,42,0.10);
+      margin: 14px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="container">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C9 5 7 8 7 11a5 5 0 0 0 10 0c0-3-2-6-5-9Z" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 21c1-2 3-3 4-3s3 1 4 3" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1 style="margin:0; font-size:15px;">Atomic Diets</h1>
+            <p style="margin:0; font-size:12px; color: var(--muted);">Teaser report preview</p>
+          </div>
+        </div>
+        <div class="nav-actions">
+          <a class="btn btn-ghost" href="auth.html">Edit</a>
+          <a class="btn btn-primary" href="success.html">Unlock</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-pad">
+    <div class="container">
+      <div class="report-grid">
+        <section class="teaser-card anim-fade">
+          <div class="section-title2">Your health score (preview)</div>
+
+          <div style="display:flex; gap: 16px; align-items:flex-end; flex-wrap:wrap;">
+            <div>
+              <div class="big-number" id="scoreNum">—</div>
+              <div class="health-sub" id="scoreText">Loading teaser…</div>
+            </div>
+
+            <div style="flex: 1; min-width: 220px;">
+              <div class="pill-row" id="pillRow"></div>
+              <div class="teaser-section">
+                <div class="section-title2" style="font-size:14px; margin-top:14px;">What this means</div>
+                <div class="placeholder" id="meaningText">
+                  Free users see a preview only. Upgrade to unlock your full timeline, meals, workouts, grocery list, and downloads.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider" style="margin:18px 0;"></div>
+
+          <div class="section-title2">May have risk factors associated with…</div>
+          <ul class="risk-list" id="riskList"></ul>
+        </section>
+
+        <aside class="teaser-card anim-fade">
+          <div class="section-title2">Unlock your full transformation plan</div>
+
+          <div class="mini" style="margin-top:6px;">
+            Includes 7-day meal plan (grams + calories + macros), 7-day workout plan (sets/reps/rest), grocery list, full dashboard, streaks, habit tracking, and monthly PDFs.
+          </div>
+
+          <div class="lock">
+            <span style="font-size:20px;">🔒</span>
+            <span>Full report is locked</span>
+          </div>
+
+          <div class="cta-row">
+            <a class="btn btn-primary" href="success.html">Choose Pro Plan</a>
+            <a class="btn btn-ghost" href="privacy.html">How we use your data</a>
+          </div>
+
+          <div class="divider" style="margin:18px 0;"></div>
+
+          <div class="section-title2" style="font-size:14px;">BEST VALUE</div>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+            <div>
+              <div style="font-weight:1000; color: var(--navy); letter-spacing:-0.02em; font-size:18px;">Pro Yearly $199/year</div>
+              <div class="mini">Save $101 vs monthly • Cancel anytime</div>
+            </div>
+            <div class="tag"><span class="dot good"></span> Highlighted</div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="footer" style="padding-top:26px;">
+        <div class="container" style="padding:0;">
+          <div class="mini">© <span id="year"></span> Atomic Diets. Educational guidance only.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function safeParse(json){
+      try { return JSON.parse(json); } catch { return null; }
+    }
+
+    const data = safeParse(localStorage.getItem('atomicDietForm')) || {};
+    const name = data.name || 'there';
+
+    const teaserScore = 61;
+    const scoreBucket = teaserScore < 60 ? 'bad' : (teaserScore < 75 ? 'warn' : 'good');
+
+    document.getElementById('scoreNum').textContent = teaserScore;
+    document.getElementById('scoreText').textContent = `Health score preview — ${name}`;
+
+    const pillRow = document.getElementById('pillRow');
+    const mkTag = (emoji, label, bucketClass) => {
+      const span = document.createElement('div');
+      span.className = 'tag';
+      span.innerHTML = '<span class="dot '+bucketClass+'"></span><span style="font-weight:900;">'+emoji+' '+label+'</span>';
+      return span;
+    };
+
+    pillRow.appendChild(mkTag('⚡','Quick insight', scoreBucket));
+    pillRow.appendChild(mkTag('🧾','Timeline preview','warn'));
+    pillRow.appendChild(mkTag('🍽️','Meals locked','bad'));
+
+    const riskList = document.getElementById('riskList');
+    const risks = [
+      'May have risk factors associated with inconsistent calorie intake patterns based on your goal + activity level.',
+      'May have risk factors associated with insufficient protein distribution across the day for muscle support.',
+      'May have risk factors associated with uneven workout consistency if training timing and recovery aren’t aligned.'
+    ];
+
+    risks.forEach(t => {
+      const li = document.createElement('li');
+      li.className = 'risk-item';
+      li.textContent = t;
+      riskList.appendChild(li);
+    });
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>      border-radius: 16px;
       border: 1px solid rgba(15,23,42,0.10);
       background: rgba(16,185,129,0.06);
       color: var(--muted);
