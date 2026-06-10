@@ -1,40 +1,219 @@
-// /api/generate-report.js
-// POST-only. Generates report via Claude, enforces monthly limits (personal plan),
-// saves to Firestore via REST.
-// Expects req.body to include:
-// - userId, idToken, name, age, gender, height, weight, country, goal,
-//   activityLevel, dietaryRestrictions, healthConditions, planType
-//
-// IMPORTANT: Do not paste secrets into the repo.
-// This function uses env vars:
-// - ANTHROPIC_API_KEY
-// - FIREBASE_API_KEY
-// - FIREBASE_PROJECT_ID
+// api/generate-report.js
+// Generates the personalized health transformation plan using Anthropic Claude.
 
-const jsonError = (res, status, error, details) => {
-  res.status(status).json({ success: false, error, ...(details ? { details } : {}) });
-};
+import fetch from "node-fetch";
 
-const requireEnv = (name, value) => {
-  if (!value) throw new Error(`Missing env var: ${name}`);
-};
+function buildPrompt(input) {
+  const {
+    goal,
+    name,
+    age,
+    gender,
+    heightCm,
+    weightKg,
+    activityLevel,
+    country,
+    dietType,
+    workoutTiming
+  } = input;
 
-const normalizeNumber = (v, fallback = 0) => {
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n : fallback;
-};
+  // Keep the prompt aligned with your spec:
+  // - Health score 0-100
+  // - Timeline to goal
+  // - 7-day meal plan with grams, calories, macros, timing
+  // - 7-day workout plan with sets x reps x rest + how to perform + estimated calories
+  // - Weekly grocery list
+  // - Use phrasing: "may have risk factors associated with ..." (never "you have diabetes" etc.)
+  //
+  // Also ensure output is strict JSON so the frontend can parse it reliably.
 
-const isoDateKey = (d = new Date()) => {
-  return d.toISOString().slice(0, 10);
-};
+  return `
+You are an expert fitness nutrition coach and health content writer.
 
-function buildClaudePrompt({
-  name,
-  age,
-  gender,
-  height,
-  weight,
-  bmi,
+Generate a COMPLETE personalized health transformation plan for the user below.
+
+IMPORTANT REQUIREMENTS:
+1) Output MUST be valid JSON only (no markdown, no extra text).
+2) Include a "healthScore" integer from 0 to 100.
+3) Include "timeline" as monthly target weights for 4 months:
+   Month 1, Month 2, Month 3, Month 4.
+4) Include "mayHaveRiskFactors" as an array of strings.
+   - Each string MUST start with: "may have risk factors associated with"
+   - Never use medical diagnoses (never say "you have diabetes", etc.)
+5) Include meal plan:
+   - "mealPlan7Days": an array of 7 days.
+   - Each day has "meals": 3 meals with keys:
+     - time (8am/1pm/7pm style)
+     - mealName
+     - portionsGrams (object with item->grams)
+     - calories
+     - macros (protein_g, carbs_g, fat_g)
+   - "weeklyGroceryList": an array of items with approximate total grams/units.
+6) Include workout plan:
+   - "workoutPlan7Days": an array of 7 days.
+   - Each day has "workouts": list of exercises.
+   - Each exercise must include:
+     - exerciseName
+     - sets
+     - reps
+     - restSeconds
+     - howToPerform (short)
+     - estimatedCaloriesBurned
+   - Include "workoutTiming" preference.
+7) Keep content actionable, safe, and generic enough for educational guidance.
+
+USER DATA:
+- Name: ${name}
+- Goal: ${goal}
+- Age: ${age}
+- Gender: ${gender}
+- HeightCm: ${heightCm}
+- CurrentWeightKg: ${weightKg}
+- ActivityLevel: ${activityLevel}
+- Country: ${country}
+- DietType: ${dietType}
+- WorkoutTiming: ${workoutTiming}
+
+Return JSON schema:
+{
+  "healthScore": number,
+  "fullHealthAnalysis": {
+    "summary": string,
+    "whatToFocusOn": string[],
+    "consistencyPlan": string
+  },
+  "timeline": {
+    "month1Kg": number,
+    "month2Kg": number,
+    "month3Kg": number,
+    "month4Kg": number,
+    "milestones": string[]
+  },
+  "mayHaveRiskFactors": string[],
+  "mealPlan7Days": [
+    {
+      "dayLabel": "Day 1",
+      "meals": [
+        {
+          "time": "8am",
+          "mealName": "string",
+          "portionsGrams": {"item":"grams"},
+          "calories": number,
+          "macros": {"protein_g": number, "carbs_g": number, "fat_g": number}
+        },
+        {
+          "time": "1pm",
+          "mealName": "string",
+          "portionsGrams": {"item":"grams"},
+          "calories": number,
+          "macros": {"protein_g": number, "carbs_g": number, "fat_g": number}
+        },
+        {
+          "time": "7pm",
+          "mealName": "string",
+          "portionsGrams": {"item":"grams"},
+          "calories": number,
+          "macros": {"protein_g": number, "carbs_g": number, "fat_g": number}
+        }
+      ]
+    }
+  ],
+  "weeklyGroceryList": [
+    {"item":"string","approxTotal":"string"}
+  ],
+  "workoutPlan7Days": [
+    {
+      "dayLabel": "Day 1",
+      "workouts": [
+        {
+          "exerciseName": "string",
+          "sets": number,
+          "reps": number,
+          "restSeconds": number,
+          "howToPerform": "string",
+          "estimatedCaloriesBurned": number
+        }
+      ],
+      "workoutTiming": "string"
+    }
+  ]
+}
+
+Now generate the JSON.`;
+}
+
+export default async function handler(req, res) {
+  try {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    const promptInput = req.body || {};
+
+    const required = ["goal", "name", "age", "gender", "heightCm", "weightKg", "activityLevel", "country", "dietType", "workoutTiming"];
+    for (const k of required) {
+      if (promptInput[k] === undefined || promptInput[k] === null || promptInput[k] === "") {
+        return res.status(400).json({ error: `Missing field: ${k}` });
+      }
+    }
+
+    const prompt = buildPrompt(promptInput);
+
+    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 5000,
+        temperature: 0.4,
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ]
+      })
+    });
+
+    const text = await anthropicRes.text();
+    if (!anthropicRes.ok) {
+      return res.status(500).json({
+        error: "Anthropic API error",
+        status: anthropicRes.status,
+        details: text
+      });
+    }
+
+    const data = JSON.parse(text);
+
+    // Anthropic returns content blocks; we need the text
+    const contentText = data?.content?.[0]?.text;
+    if (!contentText) {
+      return res.status(500).json({ error: "Unexpected Anthropic response format", data });
+    }
+
+    // Content must be JSON only; parse it
+    let reportJson;
+    try {
+      reportJson = JSON.parse(contentText);
+    } catch (e) {
+      return res.status(500).json({
+        error: "AI did not return valid JSON",
+        raw: contentText.slice(0, 2000),
+        parseError: e?.message || String(e)
+      });
+    }
+
+    return res.status(200).json({ report: reportJson });
+  } catch (err) {
+    console.error("generate-report error:", err);
+    return res.status(500).json({ error: err?.message || "Server error" });
+  }
+}  bmi,
   country,
   mealRegion,
   goal,
