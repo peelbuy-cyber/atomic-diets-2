@@ -1,30 +1,51 @@
+// api/verify-payment.js
+// Verifies whether a given Stripe customer has an active subscription.
+
+import Stripe from "stripe";
+
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
   try {
-    const { userId } = req.body;
-    if (!userId) return res.status(400).json({ error: 'Missing userId' });
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
 
-    const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
-    const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'atomic-diets';
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-    const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${userId}?key=${FIREBASE_API_KEY}`;
+    const { stripeCustomerId } = req.body || {};
+    if (!stripeCustomerId) {
+      return res.status(400).json({ error: "Missing stripeCustomerId" });
+    }
 
-    const response = await fetch(url);
-    if (!response.ok) return res.status(200).json({ isPro: false });
+    // List subscriptions for this customer and find an active one.
+    // Stripe API returns the latest subscriptions; we check status.
+    const subs = await stripe.subscriptions.list({
+      customer: stripeCustomerId,
+      status: "active",
+      expand: ["data.items.data.price"],
+      limit: 10
+    });
 
-    const data = await response.json();
-    const isPro = data.fields?.isPro?.booleanValue === true;
+    const activeSub = subs?.data?.[0] || null;
 
-    return res.status(200).json({ isPro });
+    // If you want more robustness later, we can check item price IDs, plan types, etc.
+    const result = {
+      isPro: !!activeSub,
+      subscription: activeSub
+        ? {
+            id: activeSub.id,
+            status: activeSub.status,
+            current_period_end: activeSub.current_period_end,
+            items: (activeSub.items?.data || []).map(it => ({
+              priceId: it.price?.id,
+              quantity: it.quantity
+            }))
+          }
+        : null
+    };
 
-  } catch (error) {
-    console.error('Verify error:', error);
-    return res.status(500).json({ isPro: false });
+    return res.status(200).json(result);
+  } catch (err) {
+    console.error("verify-payment error:", err);
+    return res.status(500).json({ error: err?.message || "Server error" });
   }
 }
