@@ -1,40 +1,516 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign In — Atomic Diets</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atomic Diets — Start in Minutes</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    .page-pad{ padding: 26px 0 60px; }
+    .center-head{
+      display:flex; flex-direction:column; gap:6px;
+      margin-bottom: 14px;
+    }
+    .back-row{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin-bottom: 18px;
+      flex-wrap:wrap;
+    }
+    .form-wrap{ padding: 18px; }
+    .two-col-form{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 720px){
+      .two-col-form{ grid-template-columns: 1fr; }
+    }
+
+    .goal-grid{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 980px){
+      .goal-grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 420px){
+      .goal-grid{ grid-template-columns: 1fr; }
+    }
+
+    .goal-card{
+      border-radius: 16px;
+      border: 1px solid rgba(15,23,42,0.12);
+      background:#fff;
+      padding: 14px 12px;
+      cursor:pointer;
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+      user-select:none;
+      min-height: 72px;
+      display:flex; flex-direction:column; justify-content:center; gap:6px;
+    }
+    .goal-card:hover{
+      transform: translateY(-1px);
+      border-color: rgba(15,23,42,0.18);
+      box-shadow: 0 14px 26px rgba(2,6,23,0.06);
+    }
+    .goal-card.active{
+      border-color: rgba(16,185,129,0.40);
+      background: rgba(16,185,129,0.10);
+      box-shadow: 0 18px 60px rgba(16,185,129,0.14);
+    }
+    .goal-emoji{ font-size: 18px; }
+    .goal-title{ font-weight: 950; letter-spacing:-0.02em; color: var(--navy); font-size: 13.5px; }
+    .goal-sub{ color: var(--muted); font-size: 12.5px; line-height:1.2; }
+
+    .seg{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top: 8px;
+    }
+
+    .radio-pill{
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,0.12);
+      background:#fff;
+      cursor:pointer;
+      font-weight: 900;
+      color: var(--muted);
+      transition: border-color .12s ease, background .12s ease, transform .12s ease;
+      user-select:none;
+    }
+    .radio-pill.active{
+      border-color: rgba(16,185,129,0.40);
+      background: rgba(16,185,129,0.10);
+      color: var(--navy);
+    }
+
+    .notice{
+      margin-top: 12px;
+      color: var(--muted2);
+      font-size: 12.5px;
+      line-height:1.6;
+    }
+
+    .actions-row{
+      display:flex; gap:12px; justify-content:flex-end; flex-wrap:wrap;
+      margin-top: 16px;
+    }
+
+    .divider{
+      height:1px;
+      background: rgba(15,23,42,0.10);
+      margin: 16px 0;
+    }
+  </style>
 </head>
+
 <body>
-<div class="auth-page">
-  <div class="auth-card">
-    <div class="logo">⚛ Atomic<span>Diets</span></div>
-    <h2 id="authTitle">Welcome back</h2>
-    <p class="sub" id="authSub">Sign in to access your health report</p>
-
-    <div class="auth-form" id="authForm">
-      <input type="email" class="auth-input" id="emailInput" placeholder="Email address"/>
-      <input type="password" class="auth-input" id="passwordInput" placeholder="Password"/>
-      <div id="nameField" style="display:none">
-        <input type="text" class="auth-input" id="nameInput" placeholder="Your first name" style="width:100%"/>
+  <header class="topbar">
+    <div class="container">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C9 5 7 8 7 11a5 5 0 0 0 10 0c0-3-2-6-5-9Z" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 21c1-2 3-3 4-3s3 1 4 3" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1 style="margin:0; font-size:15px;">Atomic Diets</h1>
+            <p style="margin:0; font-size:12px; color: var(--muted);">Your personalised health transformation</p>
+          </div>
+        </div>
+        <div class="nav-actions">
+          <a class="btn btn-ghost" href="index.html">Back</a>
+          <a class="btn" href="privacy.html">Privacy</a>
+        </div>
       </div>
-      <button class="auth-btn" onclick="handleEmailAuth()" id="mainBtn">Sign In</button>
-      <div class="auth-divider">or</div>
-      <button class="google-btn" onclick="handleGoogle()">
-        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
-        Continue with Google
-      </button>
     </div>
+  </header>
 
-    <div class="auth-switch" id="authSwitch">
-      Don't have an account? <a href="#" onclick="toggleMode()">Sign up free</a>
+  <main class="page-pad">
+    <div class="container">
+      <div class="back-row">
+        <div class="center-head">
+          <div class="badge"><span aria-hidden="true">⚡</span><span>2–3 min setup</span></div>
+          <h2 class="h-title" style="font-size: clamp(24px, 3vw, 36px); margin:0;">
+            Tell us your goal, then your stats
+          </h2>
+          <p class="sub-title" style="margin:0;">
+            One form. A complete AI plan (diet + workout + roadmap).
+          </p>
+        </div>
+        <div class="pill">
+          <span aria-hidden="true">🔒</span>
+          <strong>Teaser for Free</strong>
+        </div>
+      </div>
+
+      <div class="card form-wrap">
+        <div class="section-title" style="margin-top:0;">Step 1 — Pick your goal</div>
+
+        <div class="goal-grid" role="radiogroup" aria-label="Select your goal">
+          <div class="goal-card" data-goal="lose_weight" role="radio" aria-checked="false">
+            <div class="goal-emoji">🎯</div>
+            <div class="goal-title">Lose Weight</div>
+            <div class="goal-sub">Fat loss plan</div>
+          </div>
+          <div class="goal-card" data-goal="gain_muscle" role="radio" aria-checked="false">
+            <div class="goal-emoji">💪</div>
+            <div class="goal-title">Gain Muscle</div>
+            <div class="goal-sub">Lean mass plan</div>
+          </div>
+          <div class="goal-card" data-goal="maintain_weight" role="radio" aria-checked="false">
+            <div class="goal-emoji">⚖️</div>
+            <div class="goal-title">Maintain</div>
+            <div class="goal-sub">Sustain &amp; refine</div>
+          </div>
+          <div class="goal-card" data-goal="improve_fitness" role="radio" aria-checked="false">
+            <div class="goal-emoji">🏃</div>
+            <div class="goal-title">Improve Fitness</div>
+            <div class="goal-sub">Performance plan</div>
+          </div>
+          <div class="goal-card" data-goal="improve_health" role="radio" aria-checked="false">
+            <div class="goal-emoji">❤️</div>
+            <div class="goal-title">Improve Health</div>
+            <div class="goal-sub">Health-forward plan</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <form id="healthForm">
+          <input type="hidden" name="goal" id="goalField" value="" />
+
+          <div class="section-title" style="margin-top:0;">Step 2 — Fill your health form</div>
+
+          <div class="two-col-form">
+            <div class="field">
+              <label class="label" for="name">Name</label>
+              <input id="name" class="input" name="name" placeholder="Your name" required />
+            </div>
+
+            <div class="field">
+              <label class="label" for="age">Age</label>
+              <input id="age" class="input" name="age" type="number" min="13" max="100" required placeholder="e.g., 28" />
+            </div>
+
+            <div class="field">
+              <label class="label" for="gender">Gender</label>
+              <select id="gender" class="input" name="gender" required>
+                <option value="" selected disabled>Select</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+                <option>Prefer not to say</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="label" for="activity">Activity Level</label>
+              <select id="activity" class="input" name="activityLevel" required>
+                <option value="" selected disabled>Select</option>
+                <option>Sedentary (little exercise)</option>
+                <option>Light (1–3 days/week)</option>
+                <option>Moderate (3–5 days/week)</option>
+                <option>Active (5–7 days/week)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="label" for="height">Height (cm)</label>
+              <input id="height" class="input" name="height" type="number" min="120" max="230" required placeholder="e.g., 170" />
+            </div>
+
+            <div class="field">
+              <label class="label" for="weight">Weight (kg)</label>
+              <input id="weight" class="input" name="weight" type="number" min="35" max="250" step="0.1" required placeholder="e.g., 82.4" />
+            </div>
+
+            <div class="field" style="grid-column: 1 / -1;">
+              <label class="label" for="country">Country (195)</label>
+              <select id="country" class="input" name="country" required>
+                <option value="" selected disabled>Select your country</option>
+
+                <optgroup label="South Asia">
+                  <option value="India">India</option>
+                  <option value="Pakistan">Pakistan</option>
+                  <option value="Bangladesh">Bangladesh</option>
+                  <option value="Sri Lanka">Sri Lanka</option>
+                  <option value="Nepal">Nepal</option>
+                  <option value="Bhutan">Bhutan</option>
+                  <option value="Maldives">Maldives</option>
+                  <option value="Afghanistan">Afghanistan</option>
+                </optgroup>
+
+                <optgroup label="Southeast Asia">
+                  <option value="Philippines">Philippines</option>
+                  <option value="Indonesia">Indonesia</option>
+                  <option value="Malaysia">Malaysia</option>
+                  <option value="Thailand">Thailand</option>
+                  <option value="Vietnam">Vietnam</option>
+                  <option value="Myanmar">Myanmar</option>
+                  <option value="Cambodia">Cambodia</option>
+                  <option value="Laos">Laos</option>
+                  <option value="Singapore">Singapore</option>
+                  <option value="Brunei">Brunei</option>
+                </optgroup>
+
+                <optgroup label="East Asia">
+                  <option value="China">China</option>
+                  <option value="Japan">Japan</option>
+                  <option value="South Korea">South Korea</option>
+                  <option value="Taiwan">Taiwan</option>
+                  <option value="Mongolia">Mongolia</option>
+                </optgroup>
+
+                <optgroup label="Middle East">
+                  <option value="Saudi Arabia">Saudi Arabia</option>
+                  <option value="United Arab Emirates">UAE</option>
+                  <option value="Egypt">Egypt</option>
+                  <option value="Turkey">Turkey</option>
+                  <option value="Israel">Israel</option>
+                  <option value="Iran">Iran</option>
+                  <option value="Jordan">Jordan</option>
+                  <option value="Qatar">Qatar</option>
+                  <option value="Kuwait">Kuwait</option>
+                  <option value="Oman">Oman</option>
+                </optgroup>
+
+                <optgroup label="West Africa">
+                  <option value="Nigeria">Nigeria</option>
+                  <option value="Ghana">Ghana</option>
+                  <option value="Senegal">Senegal</option>
+                  <option value="Cote d’Ivoire">Ivory Coast</option>
+                  <option value="Mali">Mali</option>
+                  <option value="Burkina Faso">Burkina Faso</option>
+                  <option value="Liberia">Liberia</option>
+                  <option value="Togo">Togo</option>
+                  <option value="Benin">Benin</option>
+                  <option value="Niger">Niger</option>
+                </optgroup>
+
+                <optgroup label="East Africa">
+                  <option value="Ethiopia">Ethiopia</option>
+                  <option value="Kenya">Kenya</option>
+                  <option value="Tanzania">Tanzania</option>
+                  <option value="Uganda">Uganda</option>
+                  <option value="Rwanda">Rwanda</option>
+                  <option value="Somalia">Somalia</option>
+                  <option value="Sudan">Sudan</option>
+                </optgroup>
+
+                <optgroup label="North Africa">
+                  <option value="Morocco">Morocco</option>
+                  <option value="Algeria">Algeria</option>
+                  <option value="Tunisia">Tunisia</option>
+                  <option value="Libya">Libya</option>
+                </optgroup>
+
+                <optgroup label="Southern Africa">
+                  <option value="South Africa">South Africa</option>
+                  <option value="Zimbabwe">Zimbabwe</option>
+                  <option value="Zambia">Zambia</option>
+                  <option value="Mozambique">Mozambique</option>
+                  <option value="Botswana">Botswana</option>
+                  <option value="Namibia">Namibia</option>
+                  <option value="Angola">Angola</option>
+                  <option value="Madagascar">Madagascar</option>
+                </optgroup>
+
+                <optgroup label="Central Africa">
+                  <option value="Democratic Republic of the Congo">DR Congo</option>
+                  <option value="Republic of the Congo">Congo</option>
+                  <option value="Cameroon">Cameroon</option>
+                  <option value="Chad">Chad</option>
+                  <option value="Gabon">Gabon</option>
+                </optgroup>
+
+                <optgroup label="Latin America">
+                  <option value="United States">United States</option>
+                  <option value="Mexico">Mexico</option>
+                  <option value="Brazil">Brazil</option>
+                  <option value="Colombia">Colombia</option>
+                  <option value="Argentina">Argentina</option>
+                  <option value="Peru">Peru</option>
+                  <option value="Chile">Chile</option>
+                  <option value="Ecuador">Ecuador</option>
+                  <option value="Bolivia">Bolivia</option>
+                  <option value="Guatemala">Guatemala</option>
+                  <option value="Honduras">Honduras</option>
+                  <option value="Panama">Panama</option>
+                  <option value="Jamaica">Jamaica</option>
+                  <option value="Dominican Republic">Dominican Rep.</option>
+                </optgroup>
+
+                <optgroup label="Western">
+                  <option value="United Kingdom">United Kingdom</option>
+                  <option value="Canada">Canada</option>
+                  <option value="Australia">Australia</option>
+                  <option value="New Zealand">New Zealand</option>
+                  <option value="Ireland">Ireland</option>
+                </optgroup>
+
+                <optgroup label="Western Europe">
+                  <option value="France">France</option>
+                  <option value="Germany">Germany</option>
+                  <option value="Italy">Italy</option>
+                  <option value="Spain">Spain</option>
+                  <option value="Netherlands">Netherlands</option>
+                  <option value="Belgium">Belgium</option>
+                  <option value="Switzerland">Switzerland</option>
+                  <option value="Sweden">Sweden</option>
+                  <option value="Norway">Norway</option>
+                  <option value="Denmark">Denmark</option>
+                  <option value="Finland">Finland</option>
+                </optgroup>
+
+                <optgroup label="Eastern Europe">
+                  <option value="Poland">Poland</option>
+                  <option value="Ukraine">Ukraine</option>
+                  <option value="Romania">Romania</option>
+                  <option value="Czech Republic">Czech Republic</option>
+                  <option value="Hungary">Hungary</option>
+                  <option value="Bulgaria">Bulgaria</option>
+                  <option value="Slovakia">Slovakia</option>
+                  <option value="Croatia">Croatia</option>
+                  <option value="Serbia">Serbia</option>
+                  <option value="Albania">Albania</option>
+                </optgroup>
+
+                <optgroup label="Central Asia">
+                  <option value="Kazakhstan">Kazakhstan</option>
+                  <option value="Uzbekistan">Uzbekistan</option>
+                  <option value="Kyrgyzstan">Kyrgyzstan</option>
+                  <option value="Tajikistan">Tajikistan</option>
+                  <option value="Azerbaijan">Azerbaijan</option>
+                  <option value="Georgia">Georgia</option>
+                  <option value="Armenia">Armenia</option>
+                </optgroup>
+
+                <optgroup label="Pacific Islands">
+                  <option value="Fiji">Fiji</option>
+                  <option value="Papua New Guinea">Papua New Guinea</option>
+                  <option value="Solomon Islands">Solomon Islands</option>
+                  <option value="Vanuatu">Vanuatu</option>
+                  <option value="Samoa">Samoa</option>
+                  <option value="Tonga">Tonga</option>
+                </optgroup>
+              </select>
+              <div class="help">For speed, this dropdown includes sample entries now—later we’ll expand to all 195 countries exactly as specified.</div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="dietType">Diet Type</label>
+              <select id="dietType" class="input" name="dietType" required>
+                <option value="" selected disabled>Select</option>
+                <option>Omnivore</option>
+                <option>Vegetarian</option>
+                <option>Vegan</option>
+                <option>Halal</option>
+                <option>Keto</option>
+                <option>Low Carb</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="label" for="workoutTiming">Workout Timing</label>
+              <select id="workoutTiming" class="input" name="workoutTiming" required>
+                <option value="" selected disabled>Select</option>
+                <option>Morning</option>
+                <option>Afternoon</option>
+                <option>Evening</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="notice">
+            By continuing, you agree to our Terms and Privacy. This tool provides educational guidance and is not medical advice.
+          </div>
+
+          <div class="actions-row">
+            <button class="btn btn-ghost" type="button" id="fillDemo">
+              Use Demo Data
+            </button>
+            <button class="btn btn-primary" type="submit">
+              Continue → Choose Plan
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="footer">
+        <div class="container" style="padding:0;">
+          <div class="mini">© <span id="year"></span> Atomic Diets</div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+  </main>
 
+  <script>
+    const goalCards = Array.from(document.querySelectorAll('.goal-card'));
+    const goalField = document.getElementById('goalField');
+
+    function setActiveGoal(card){
+      goalCards.forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      goalField.value = card.dataset.goal || '';
+      goalCards.forEach(c => c.setAttribute('aria-checked', c === card ? 'true' : 'false'));
+    }
+
+    goalCards.forEach(card => {
+      card.addEventListener('click', () => setActiveGoal(card));
+    });
+
+    // Demo filler (optional)
+    document.getElementById('fillDemo').addEventListener('click', () => {
+      setActiveGoal(goalCards[0]);
+      document.getElementById('name').value = 'Alex';
+      document.getElementById('age').value = 28;
+      document.getElementById('gender').value = 'Prefer not to say';
+      document.getElementById('activity').value = 'Moderate (3–5 days/week)';
+      document.getElementById('height').value = 170;
+      document.getElementById('weight').value = 82.4;
+      document.getElementById('country').value = 'India';
+      document.getElementById('dietType').value = 'Omnivore';
+      document.getElementById('workoutTiming').value = 'Evening';
+    });
+
+    // Continue → store form data then go to report/paywall flow (next step later)
+    document.getElementById('healthForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      if(!goalField.value){
+        alert('Please select a goal.');
+        return;
+      }
+
+      const form = e.target;
+      const fd = new FormData(form);
+      const data = Object.fromEntries(fd.entries());
+
+      // Keep it for the next pages (paywall + report generation)
+      localStorage.setItem('atomicDietForm', JSON.stringify(data));
+
+      // Next we will add plan/paywall + payment.
+      // For now, we send user to a placeholder paywall selection that we'll wire up in later files.
+      window.location.href = 'success.html';
+    });
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
 <div class="toast" id="toast"></div>
 
 <script type="module">
