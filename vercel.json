@@ -1,13 +1,14 @@
 {
-  "functions": {
-    "api/create-checkout.js": {
-      "maxDuration": 10
-    },
-    "api/stripe-webhook.js": {
-      "maxDuration": 10
-    },
-    "api/verify-payment.js": {
-      "maxDuration": 5
-    }
+  "name": "atomic-diets",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "true",
+    "start": "true"
+  },
+  "dependencies": {
+    "stripe": "^16.0.0"
   }
 }
