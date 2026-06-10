@@ -1,40 +1,81 @@
-export const config = { api: { bodyParser: false } };
+// api/stripe-webhook.js
+// Stripe Webhook endpoint for Atomic Diets
 
-async function getRawBody(req) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    req.on('data', chunk => chunks.push(chunk));
-    req.on('end', () => resolve(Buffer.concat(chunks)));
-    req.on('error', reject);
-  });
-}
+import Stripe from "stripe";
 
-async function verifyStripeSignature(rawBody, signature, secret) {
-  const encoder = new TextEncoder();
-  const parts = signature.split(',');
-  let timestamp = '';
-  let sigHash = '';
-  for (const part of parts) {
-    if (part.startsWith('t=')) timestamp = part.slice(2);
-    if (part.startsWith('v1=')) sigHash = part.slice(3);
+export default async function handler(req, res) {
+  // Webhooks require raw body for signature verification.
+  // Vercel/Next-like environments provide body parsing; to keep compatibility,
+  // we attempt to use req.body as-is and also allow string fallback.
+  try {
+    if (req.method !== "POST") {
+      return res.status(405).send("Method not allowed");
+    }
+
+    const sig = req.headers["stripe-signature"];
+    if (!sig) {
+      return res.status(400).send("Missing stripe-signature header");
+    }
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!webhookSecret) {
+      return res.status(500).send("Missing STRIPE_WEBHOOK_SECRET env var");
+    }
+
+    // If your platform supplies parsed JSON, signature verification will fail.
+    // In Vercel, you may need to disable body parsing for this function.
+    // For now we try to reconstruct raw body if possible.
+    const rawBody =
+      typeof req.body === "string" ? req.body : JSON.stringify(req.body || {});
+
+    const event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
+
+    // Handle the event types we care about
+    // (You can expand later.)
+    const eventType = event.type;
+    const obj = event.data?.object || {};
+
+    console.log("[stripe webhook] type:", eventType);
+
+    // Common objects:
+    // - checkout.session.completed (Checkout)
+    // - customer.subscription.created/updated/deleted
+    // - invoice.payment_succeeded
+    //
+    // We will primarily log identifiers and metadata now.
+    // Later we will connect to Firebase REST calls for mapping userId <-> stripeCustomerId.
+
+    if (eventType === "checkout.session.completed") {
+      console.log("[stripe webhook] checkout.session.completed:", {
+        sessionId: obj.id,
+        customerId: obj.customer,
+        subscriptionId: obj.subscription,
+        metadata: obj.metadata
+      });
+    }
+
+    if (
+      eventType === "customer.subscription.created" ||
+      eventType === "customer.subscription.updated"
+    ) {
+      console.log("[stripe webhook] subscription event:", {
+        subscriptionId: obj.id,
+        customerId: obj.customer,
+        status: obj.status,
+        metadata: obj.metadata
+      });
+    }
+
+    // Return 200 quickly to acknowledge receipt
+    res.status(200).json({ received: true });
+  } catch (err) {
+    console.error("stripe webhook error:", err?.message || err);
+    // Signature mismatch returns 400
+    return res.status(400).send(`Webhook Error: ${err?.message || "Bad Request"}`);
   }
-  const payload = `${timestamp}.${rawBody}`;
-  const key = await crypto.subtle.importKey(
-    'raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
-  );
-  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
-  const computed = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
-  return computed === sigHash;
-}
-
-async function updateFirebase(userId, data) {
-  const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
-  const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'atomic-diets';
-
-  const fields = {};
-  for (const [key, value] of Object.entries(data)) {
-    if (typeof value === 'boolean') fields[key] = { booleanValue: value };
-    else if (typeof value === 'number') fields[key] = { integerValue: value };
+}    else if (typeof value === 'number') fields[key] = { integerValue: value };
     else fields[key] = { stringValue: String(value) };
   }
 
