@@ -1,66 +1,147 @@
-success.html  <ul>
-    <li>Account information: email address, name (when you sign up)</li>
-    <li>Health data you enter: age, gender, height, weight, activity level, goal, country</li>
-    <li>Progress tracker entries you save</li>
-    <li>Payment information (processed securely by Stripe — we never store card details)</li>
-    <li>Usage data: pages visited, browser type, device type (via analytics)</li>
-  </ul>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Atomic Diets</title>
 
-  <h2>3. How We Use Your Information</h2>
-  <ul>
-    <li>To generate your personalised health report</li>
-    <li>To provide your workout plan and meal plan</li>
-    <li>To save your progress tracker history</li>
-    <li>To process your subscription payment via Stripe</li>
-    <li>To send important account emails (receipt, subscription updates)</li>
-    <li>To improve our platform</li>
-  </ul>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 
-  <h2>4. Health Data</h2>
-  <p>All health calculations run directly in your browser. Your health data (height, weight, age etc.) is stored locally on your device and in your Firebase account. We do not sell or share your health data with any third party. This information is used solely to generate your report and track your progress.</p>
-  <p>Atomic Diets is not a medical service. Reports are for informational purposes only. Always consult a healthcare professional for medical advice.</p>
+  <style>
+    .page-pad{ padding: 26px 0 60px; }
+    .doc{
+      background:#fff;
+      border: 1px solid rgba(15,23,42,0.10);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+    h2{
+      margin: 18px 0 8px;
+      color: var(--navy);
+      letter-spacing:-0.02em;
+    }
+    p, li{
+      color: var(--muted);
+      line-height:1.7;
+      font-size: 13.5px;
+    }
+    ul{ padding-left: 18px; margin: 8px 0; }
+    .top-actions{ display:flex; gap:12px; flex-wrap:wrap; margin-top:6px; }
+  </style>
+</head>
 
-  <h2>5. Payments</h2>
-  <p>All payments are processed by Stripe, a secure third-party payment processor. We never store your credit card details. Stripe's privacy policy applies to payment processing. You can cancel your subscription at any time from your Stripe billing portal.</p>
+<body>
+  <header class="topbar">
+    <div class="container">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C9 5 7 8 7 11a5 5 0 0 0 10 0c0-3-2-6-5-9Z" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 21c1-2 3-3 4-3s3 1 4 3" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1 style="margin:0; font-size:15px;">Atomic Diets</h1>
+            <p style="margin:0; font-size:12px; color: var(--muted);">Privacy Policy</p>
+          </div>
+        </div>
 
-  <h2>6. Data Storage</h2>
-  <p>Your account data is stored securely in Google Firebase (Firestore). Firebase is protected by Google's enterprise-grade security. Your data is accessible only to you through your authenticated account.</p>
-
-  <h2>7. Cookies</h2>
-  <p>We use cookies for authentication (Firebase Auth) and analytics (Google Analytics). You can disable cookies in your browser settings. Disabling cookies may affect site functionality.</p>
-
-  <h2>8. Third-Party Services</h2>
-  <ul>
-    <li>Firebase (Google) — authentication and database</li>
-    <li>Stripe — payment processing</li>
-    <li>Google Analytics — anonymous usage analytics</li>
-    <li>Google Fonts — typography</li>
-  </ul>
-
-  <h2>9. Your Rights</h2>
-  <p>You have the right to access, correct, or delete your personal data at any time. To delete your account and all associated data, contact us at the email below. We will process deletion requests within 30 days.</p>
-
-  <h2>10. Children's Privacy</h2>
-  <p>Atomic Diets is not intended for users under 13 years of age. We do not knowingly collect information from children under 13.</p>
-
-  <h2>11. Changes to This Policy</h2>
-  <p>We may update this policy occasionally. Changes will be posted on this page with an updated date. Continued use of the service after changes constitutes acceptance.</p>
-
-  <h2>12. Contact</h2>
-  <p>For privacy questions or data deletion requests:<br/>
-  Email: <a href="mailto:hello@atomicdiets.com">hello@atomicdiets.com</a><br/>
-  Website: <a href="index.html">atomicdiets.com</a></p>
-</div>
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="logo">⚛ Atomic<span>Diets</span></div>
-    <div class="footer-links">
-      <a href="privacy.html">Privacy Policy</a>
-      <a href="terms.html">Terms of Service</a>
-      <a href="mailto:hello@atomicdiets.com">Contact</a>
+        <div class="nav-actions top-actions">
+          <a class="btn btn-ghost" href="index.html">Home</a>
+          <a class="btn btn-primary" href="terms.html">Terms</a>
+        </div>
+      </div>
     </div>
-    <p class="footer-disc">© 2026 Atomic Diets. For informational purposes only.</p>
-  </div>
-</footer>
+  </header>
+
+  <main class="page-pad">
+    <div class="container">
+      <article class="doc">
+        <h2>Effective Date</h2>
+        <p>This Privacy Policy is effective as of <b id="effectiveDate"></b>.</p>
+
+        <h2>1) Who we are</h2>
+        <p>
+          Atomic Diets (“we”, “us”, “our”) provides an AI-powered health and fitness subscription platform.
+          Our service helps you generate personalized diet, workout, and weight-loss guidance based on the information you provide.
+        </p>
+
+        <h2>2) What information we collect</h2>
+        <p>Depending on how you use the service, we may collect:</p>
+        <ul>
+          <li><b>Account information</b> (e.g., name and email) if you create/login via our authentication flow.</li>
+          <li><b>Health and fitness input</b> (e.g., age, gender, height, weight, activity level, workout timing, diet type, and country).</li>
+          <li><b>Subscription and billing data</b> processed by Stripe (we do not store full card details).</li>
+          <li><b>Usage data</b> related to generating and viewing reports (e.g., reports you request and dashboard interactions).</li>
+        </ul>
+
+        <h2>3) How we use your information</h2>
+        <ul>
+          <li>To generate your personalized plan, including meal plans and workout schedules.</li>
+          <li>To provide your dashboard, streaks, progress tracking, and downloadable reports.</li>
+          <li>To manage subscriptions, billing, and account access.</li>
+          <li>To improve the service and our user experience.</li>
+        </ul>
+
+        <h2>4) AI and third-party services</h2>
+        <p>
+          We use third-party service providers to operate our platform and to generate reports. This may include:
+          <b>Firebase</b> for authentication and storing user data, <b>Stripe</b> for billing/subscriptions,
+          and <b>Anthropic Claude API</b> (AI) to generate personalized content.
+        </p>
+        <p>
+          When you submit your health form, we may send relevant data to the AI service so it can produce your plan.
+        </p>
+
+        <h2>5) Data storage and retention</h2>
+        <p>
+          We store user data to operate the service, including health reports and progress entries.
+          Your subscription status may affect how long we retain certain data.
+        </p>
+
+        <h2>6) Your choices</h2>
+        <ul>
+          <li>You can review and update certain account details through your account access flow.</li>
+          <li>You can cancel your subscription via Stripe.</li>
+          <li>You can request deletion of your account data by contacting us.</li>
+        </ul>
+
+        <h2>7) Security</h2>
+        <p>
+          We use reasonable safeguards designed to protect your information. However, no method of transmission or storage is 100% secure.
+        </p>
+
+        <h2>8) Children’s privacy</h2>
+        <p>
+          Our service is not directed to children under 13. If we learn we have collected information from a child under 13,
+          we will take steps to delete it.
+        </p>
+
+        <h2>9) Changes to this policy</h2>
+        <p>
+          We may update this Privacy Policy from time to time. Continued use of the service means you accept the updated policy.
+        </p>
+
+        <h2>10) Contact us</h2>
+        <p>
+          If you have questions about this Privacy Policy, contact us at: <b>hello@atomicdiets.com</b>.
+        </p>
+      </article>
+
+      <div class="mini" style="margin-top:12px; color: var(--muted2); font-size: 12.5px; line-height:1.6;">
+        Note: This is a template. Have it reviewed by a qualified legal professional for compliance.
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('effectiveDate').textContent =
+      new Date().toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' });
+  </script>
 </body>
 </html>
